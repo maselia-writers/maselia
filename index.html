@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maselia — Screenwriters</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Tenor+Sans&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #080808;
+    --dark: #0e0e0e;
+    --card: #111111;
+    --border: #222222;
+    --border-light: #2a2a2a;
+    --gold: #b8976a;
+    --gold-light: #d4b896;
+    --white: #f0ece4;
+    --muted: #888880;
+    --mono: 'DM Mono', monospace;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Tenor Sans', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 32px; height: 32px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease-out, width 0.3s, height 0.3s, opacity 0.3s;
+    opacity: 0.5;
+  }
+  body:hover .cursor { opacity: 1; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 3rem;
+    background: rgba(8,8,8,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--gold); }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8rem 3rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -20%; right: -10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(ellipse, rgba(184,151,106,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.2s;
+  }
+
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(4rem, 10vw, 9rem);
+    font-weight: 300;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.4s;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--muted);
+    max-width: 480px;
+    line-height: 1.8;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.6s;
+  }
+
+  .hero-rule {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.7s;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--white);
+    text-decoration: none;
+    border: 1px solid var(--border-light);
+    padding: 1rem 2rem;
+    transition: border-color 0.3s, color 0.3s;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.9s;
+  }
+  .hero-cta:hover { border-color: var(--gold); color: var(--gold); }
+  .hero-cta::after { content: '↓'; }
+
+  .hero-scroll-line {
+    position: absolute;
+    bottom: 3rem; right: 3rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--border-light);
+    writing-mode: vertical-rl;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 1.2s;
+  }
+
+  /* SECTION BASE */
+  section {
+    padding: 8rem 3rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title em { font-style: italic; color: var(--gold); }
+
+  /* ABOUT */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    margin-top: 4rem;
+    align-items: start;
+  }
+
+  .about-text p {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 300;
+    line-height: 1.9;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .about-text p strong { color: var(--white); font-weight: 400; }
+
+  .about-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 2rem;
+  }
+
+  .stat-number {
+    font-family: var(--serif);
+    font-size: 3rem;
+    font-weight: 300;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* WRITERS */
+  .writers-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 4rem;
+  }
+
+  .writer-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 3rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.4s;
+  }
+
+  .writer-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .writer-card:hover { border-color: var(--border-light); }
+  .writer-card:hover::before { transform: scaleX(1); }
+
+  .writer-number {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: var(--border-light);
+    margin-bottom: 2rem;
+  }
+
+  .writer-name {
+    font-family: var(--serif);
+    font-size: 1.9rem;
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+
+  .writer-name em { font-style: italic; color: var(--gold); display: block; }
+
+  .writer-rule {
+    width: 30px;
+    height: 1px;
+    background: var(--border-light);
+    margin: 1.5rem 0;
+    transition: width 0.4s, background 0.4s;
+  }
+  .writer-card:hover .writer-rule { width: 50px; background: var(--gold); }
+
+  .writer-bio {
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+
+  .writer-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.7rem;
+    transition: border-color 0.3s, color 0.3s;
+  }
+  .writer-card:hover .tag { border-color: var(--border-light); color: var(--gold-light); }
+
+  /* JOINT PROJECT */
+  .project-block {
+    margin-top: 4rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+  }
+
+  .project-label-col {
+    padding: 4rem 3rem;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .project-content-col {
+    padding: 4rem 3rem;
+  }
+
+  .project-tag {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: inline-block;
+    border: 1px solid var(--gold);
+    padding: 0.3rem 0.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .project-title {
+    font-family: var(--serif);
+    font-size: 2.5rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--white);
+    line-height: 1.1;
+  }
+
+  .project-desc {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    font-weight: 300;
+    line-height: 1.9;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+
+  .project-writers {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--border-light);
+  }
+
+  /* SERVICES */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 4rem;
+  }
+
+  .service-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    transition: border-color 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .service-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s;
+  }
+  .service-item:hover { border-color: var(--border-light); }
+  .service-item:hover::after { transform: scaleX(1); }
+
+  .service-icon {
+    font-family: var(--serif);
+    font-size: 2rem;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
+
+  .service-name {
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    color: var(--white);
+  }
+
+  .service-desc {
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--muted);
+  }
+
+  /* CONTACT */
+  .contact-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    margin-top: 4rem;
+    align-items: start;
+  }
+
+  .contact-text {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 300;
+    line-height: 1.9;
+    color: var(--muted);
+    margin-bottom: 3rem;
+  }
+
+  .contact-detail {
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-detail-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.3rem;
+  }
+
+  .contact-detail-value {
+    font-family: var(--serif);
+    font-size: 1rem;
+    color: var(--white);
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .form-input, .form-textarea, .form-select {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--white);
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    padding: 0.9rem 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+    width: 100%;
+    appearance: none;
+  }
+
+  .form-input:focus, .form-textarea:focus, .form-select:focus {
+    border-color: var(--gold);
+  }
+
+  .form-textarea { resize: vertical; min-height: 120px; }
+
+  .form-select { cursor: pointer; }
+  .form-select option { background: var(--dark); }
+
+  .btn-submit {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--gold);
+    border: none;
+    padding: 1.1rem 2.5rem;
+    cursor: none;
+    transition: background 0.3s, color 0.3s;
+    align-self: flex-start;
+  }
+  .btn-submit:hover { background: var(--gold-light); }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-logo {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .footer-logo span { color: var(--gold); }
+
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--border-light);
+    text-transform: uppercase;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    nav { padding: 1.2rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { padding: 7rem 1.5rem 4rem; }
+    section { padding: 5rem 1.5rem; }
+    .about-grid, .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
+    .writers-grid, .services-grid { grid-template-columns: 1fr; }
+    .project-block { grid-template-columns: 1fr; }
+    .project-label-col { border-right: none; border-bottom: 1px solid var(--border); }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="#" class="nav-logo">Ma<span>s</span>elia</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#writers">Writers</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-eyebrow">Maselia — Screenwriters Collective</div>
+  <h1 class="hero-title">Words.<br>Worlds.<br><em>Story.</em></h1>
+  <div class="hero-rule"></div>
+  <p class="hero-sub">Three writers. One voice when it counts. Stories built to last, scripts built to sell.</p>
+  <a href="#writers" class="hero-cta">Meet the Writers</a>
+  <span class="hero-scroll-line">Scroll to explore</span>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label">// 001 — About</div>
+  <h2 class="section-title reveal">We write worlds<br>others <em>inhabit.</em></h2>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>Maselia is a collective of three working screenwriters united by a shared conviction: that <strong>great stories demand rigour, craft, and a willingness to go where it's uncomfortable.</strong></p>
+      <p>We work independently on our own projects and together on joint endeavours — bringing the full weight of three perspectives to bear on material that deserves more than one pair of eyes.</p>
+      <p>Available for commissions, collaborations, and professional script services across all stages of development.</p>
+    </div>
+    <div class="about-stats reveal">
+      <div class="stat-box">
+        <div class="stat-number">3</div>
+        <div class="stat-label">Working Writers</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">∞</div>
+        <div class="stat-label">Stories to Tell</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">01</div>
+        <div class="stat-label">Joint Project</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">6+</div>
+        <div class="stat-label">Services Offered</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WRITERS -->
+<section id="writers">
+  <div class="section-label">// 002 — The Writers</div>
+  <h2 class="section-title reveal">Three voices.<br><em>One collective.</em></h2>
+  <div class="writers-grid">
+
+    <div class="writer-card reveal">
+      <div class="writer-number">— 01</div>
+      <div class="writer-name">Michael<em>Cotter</em></div>
+      <div class="writer-rule"></div>
+      <p class="writer-bio">A writer drawn to moral complexity and the weight of history. Michael's work explores characters caught between the world they were given and the one they choose to make — spare, precise, and emotionally unsparing.</p>
+      <div class="writer-tags">
+        <span class="tag">Drama</span>
+        <span class="tag">Period</span>
+        <span class="tag">Character</span>
+      </div>
+    </div>
+
+    <div class="writer-card reveal">
+      <div class="writer-number">— 02</div>
+      <div class="writer-name">Chris<em>Gibson</em></div>
+      <div class="writer-rule"></div>
+      <p class="writer-bio">Chris writes with structural precision and an instinct for the unexpected turn. His scripts are built to move — propulsive narratives underpinned by character work that earns every twist it takes.</p>
+      <div class="writer-tags">
+        <span class="tag">Thriller</span>
+        <span class="tag">Crime</span>
+        <span class="tag">Structure</span>
+      </div>
+    </div>
+
+    <div class="writer-card reveal">
+      <div class="writer-number">— 03</div>
+      <div class="writer-name">Bobby<em>Bea</em></div>
+      <div class="writer-rule"></div>
+      <p class="writer-bio">Bobby brings voice, texture, and an ear for dialogue that lives and breathes. His work operates in the space between genre and literary ambition — stories that feel both urgent and inevitable.</p>
+      <div class="writer-tags">
+        <span class="tag">Voice</span>
+        <span class="tag">Genre</span>
+        <span class="tag">Dialogue</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- JOINT PROJECT -->
+<section id="projects">
+  <div class="section-label">// 003 — Joint Project</div>
+  <h2 class="section-title reveal">Where three minds<br>become <em>one story.</em></h2>
+  <div class="project-block reveal">
+    <div class="project-label-col">
+      <div>
+        <span class="project-tag">In Development</span>
+        <h3 class="project-title">Sin Francisco</h3>
+      </div>
+      <div class="project-writers">Cotter · Gibson · Bea</div>
+    </div>
+    <div class="project-content-col">
+      <p class="project-desc">A prestige frontier crime saga set in Gold Rush–era San Francisco. Three intersecting lives. A city still deciding what it wants to be — built on stolen land, slave capital, and the bones of those it consumed to get there.</p>
+      <p class="project-desc"><em>Sin Francisco</em> charts the nefarious birth of a city across colliding lives — a brutal reckoning in which legacy and vengeance ignite a Gold Rush Babylon that devours the weak, crowns the ruthless, and demands, sooner or later, that every sin be named.</p>
+      <p class="project-desc" style="color: var(--border-light); font-size: 0.85rem;">A prestige frontier crime saga about power, race, and America's original sin.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-label">// 004 — Services</div>
+  <h2 class="section-title reveal">What we<br><em>offer.</em></h2>
+  <div class="services-grid">
+
+    <div class="service-item reveal">
+      <div class="service-icon">I.</div>
+      <div class="service-name">Screenwriting</div>
+      <p class="service-desc">Original scripts developed from concept to completion. Feature, pilot, short — we write across formats with the same commitment to craft.</p>
+    </div>
+
+    <div class="service-item reveal">
+      <div class="service-icon">II.</div>
+      <div class="service-name">Script Editing</div>
+      <p class="service-desc">Structural and line-level editing for scripts at any stage. We find what isn't working and tell you plainly — then help you fix it.</p>
+    </div>
+
+    <div class="service-item reveal">
+      <div class="service-icon">III.</div>
+      <div class="service-name">Proofreading</div>
+      <p class="service-desc">Meticulous proofreading in correct screenplay format. Industry-standard presentation, every time.</p>
+    </div>
+
+    <div class="service-item reveal">
+      <div class="service-icon">IV.</div>
+      <div class="service-name">Script Analysis</div>
+      <p class="service-desc">Detailed coverage and script reports. Honest, professional assessments that give writers actionable insight, not empty encouragement.</p>
+    </div>
+
+    <div class="service-item reveal">
+      <div class="service-icon">V.</div>
+      <div class="service-name">Development</div>
+      <p class="service-desc">Story development and consultation for projects at the idea or outline stage. We help shape material before a word of script is written.</p>
+    </div>
+
+    <div class="service-item reveal">
+      <div class="service-icon">VI.</div>
+      <div class="service-name">Collaboration</div>
+      <p class="service-desc">Open to co-writing engagements and creative partnerships on the right projects. Bring us your world — we'll help you build it.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-label">// 005 — Contact</div>
+  <h2 class="section-title reveal">Let's make<br>something <em>worth watching.</em></h2>
+  <div class="contact-inner">
+    <div class="reveal">
+      <p class="contact-text">Whether you have a project in mind, a script that needs work, or simply want to talk story — we're listening. Maselia operates on the belief that the right conversation at the right time changes everything.</p>
+      <div class="contact-detail">
+        <div class="contact-detail-label">Enquiries</div>
+        <div class="contact-detail-value">hello@maselia.com</div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-detail-label">Based In</div>
+        <div class="contact-detail-value">Available Worldwide</div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-detail-label">Response Time</div>
+        <div class="contact-detail-value">Within 48 Hours</div>
+      </div>
+    </div>
+    <div class="contact-form reveal">
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <input class="form-input" type="text" placeholder="Full name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Service Required</label>
+        <select class="form-select">
+          <option value="">Select a service</option>
+          <option>Screenwriting</option>
+          <option>Script Editing</option>
+          <option>Proofreading</option>
+          <option>Script Analysis</option>
+          <option>Development Consultation</option>
+          <option>Collaboration</option>
+          <option>General Enquiry</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Message</label>
+        <textarea class="form-textarea" placeholder="Tell us about your project..."></textarea>
+      </div>
+      <button class="btn-submit">Send Enquiry →</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Ma<span>s</span>elia</div>
+  <div class="footer-copy">© 2025 Maselia — All Rights Reserved</div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+
+  function animateRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.querySelectorAll('a, button, .writer-card, .service-item').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width = '14px';
+      cursor.style.height = '14px';
+      ring.style.width = '48px';
+      ring.style.height = '48px';
+      ring.style.opacity = '0.8';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width = '8px';
+      cursor.style.height = '8px';
+      ring.style.width = '32px';
+      ring.style.height = '32px';
+      ring.style.opacity = '0.5';
+    });
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>
