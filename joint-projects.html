@@ -80,11 +80,19 @@
   .writer-pill:hover { border-color: var(--gold); color: var(--gold); }
 
   /* CAROUSEL */
-  .carousel { position: relative; background: var(--dark); border: 1px solid var(--border); overflow: hidden; }
-  .carousel-track { display: flex; transition: transform .4s ease; }
-  .carousel-slide { min-width: 100%; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; background: var(--dark); overflow: hidden; }
-  .carousel-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .carousel-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .8rem; width: 100%; min-height: 200px; }
+  .carousel {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3/2;
+    overflow: hidden;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    display: block;
+  }
+  .carousel-track { display: flex; width: 100%; height: 100%; transition: transform .4s ease; }
+  .carousel-slide { flex: 0 0 100%; height: 100%; position: relative; overflow: hidden; background: var(--dark); }
+  .carousel-slide img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+  .carousel-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .8rem; }
   .carousel-placeholder-icon { font-family: var(--serif); font-size: 2.5rem; color: var(--border-light); font-style: italic; }
   .carousel-placeholder-text { font-family: var(--mono); font-size: .55rem; letter-spacing: .18em; text-transform: uppercase; color: var(--border-light); text-align: center; line-height: 1.8; }
   .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(8,8,8,.85); border: 1px solid var(--border); color: var(--white); width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: .85rem; cursor: pointer; z-index: 10; transition: background .2s, color .2s, border-color .2s; user-select: none; }
@@ -322,7 +330,9 @@
           <div class="expand-label" style="margin-bottom:.8rem;">Images &amp; Awards</div>
           <div class="carousel" data-index="0">
             <div class="carousel-track">
-              <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">UTS</div><div class="carousel-placeholder-text">Add cover image<br>images/uts-cover.jpg</div></div></div>
+              <div class="carousel-slide">
+			<img src="images/utss-award-1.jpg" alt="utss award1"</img>
+		</div>
               <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9733;</div><div class="carousel-placeholder-text">Add award image<br>images/uts-award1.jpg</div></div></div>
             </div>
             <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
