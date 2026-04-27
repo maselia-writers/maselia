@@ -416,11 +416,46 @@
   }
 
   /* CAROUSEL */
-  .carousel { position: relative; background: var(--dark); border: 1px solid var(--border); overflow: hidden; width: 100%; aspect-ratio: 16/9; display: block; }
-  .carousel-track { display: flex; height: 100%; transition: transform 0.4s ease; will-change: transform; }
-  .carousel-slide { flex: 0 0 100%; width: 100%; height: 100%; position: relative; overflow: hidden; background: var(--dark); }
-  .carousel-slide img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center center; display: block; max-width: none; max-height: none; }
-  .carousel-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+  .carousel {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3/2;
+    overflow: hidden;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    display: block;
+  }
+  .carousel-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.4s ease;
+  }
+  .carousel-slide {
+    flex: 0 0 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background: var(--dark);
+  }
+  .carousel-slide img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+  .carousel-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+  }
   .carousel-placeholder-icon { font-family: var(--serif); font-size: 2rem; color: var(--border-light); font-style: italic; }
   .carousel-placeholder-text { font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--border-light); text-align: center; padding: 0 1rem; }
   .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(8,8,8,0.8); border: 1px solid var(--border); color: var(--white); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; cursor: pointer; z-index: 10; transition: background 0.2s, color 0.2s; user-select: none; }
@@ -1075,31 +1110,6 @@
     }
   }
 
-  // Carousel
-  function initCarousels() {
-    document.querySelectorAll('.carousel').forEach(carousel => {
-      const track = carousel.querySelector('.carousel-track');
-      const slides = carousel.querySelectorAll('.carousel-slide');
-      const dots = carousel.querySelectorAll('.carousel-dot');
-
-      function resize() {
-        const w = carousel.offsetWidth;
-        // Set every slide to exactly the carousel width
-        slides.forEach(s => { s.style.width = w + 'px'; });
-        // Set track to exactly total width
-        track.style.width = (w * slides.length) + 'px';
-        // Re-snap to current index
-        const idx = parseInt(carousel.dataset.index) || 0;
-        track.style.transition = 'none';
-        track.style.transform = `translateX(-${idx * w}px)`;
-        requestAnimationFrame(() => { track.style.transition = 'transform 0.4s ease'; });
-      }
-
-      resize();
-      new ResizeObserver(resize).observe(carousel);
-    });
-  }
-
   function carouselMove(e, btn, dir) {
     e.stopPropagation();
     const carousel = btn.closest('.carousel');
@@ -1109,16 +1119,8 @@
     let idx = parseInt(carousel.dataset.index) || 0;
     idx = (idx + dir + slides.length) % slides.length;
     carousel.dataset.index = idx;
-    const w = carousel.offsetWidth;
-    track.style.transform = `translateX(-${idx * w}px)`;
+    track.style.transform = `translateX(-${idx * 100}%)`;
     dots.forEach((d, i) => d.classList.toggle('active', i === idx));
-  }
-
-  // Init after DOM and fonts are ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCarousels);
-  } else {
-    initCarousels();
   }
 
   // Scroll reveal
