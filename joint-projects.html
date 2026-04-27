@@ -105,6 +105,54 @@
   .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
+/* UPCOMING */
+  .upcoming {
+    padding: 4rem 3rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--card);
+  }
+
+  .upcoming-inner {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+  }
+
+  .upcoming-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .upcoming-rule {
+    width: 1px;
+    height: 40px;
+    background: var(--border-light);
+    flex-shrink: 0;
+  }
+
+  .upcoming-titles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .upcoming-title {
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--body-text);
+    border: 1px solid var(--border);
+    padding: 0.4rem 1rem;
+    transition: color 0.3s, border-color 0.3s;
+  }
+  .upcoming-title:hover { color: var(--gold); border-color: var(--border-light); }
+
+
   @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 
