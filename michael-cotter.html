@@ -392,7 +392,7 @@
 
   .project-expand-inner {
     display: grid;
-    grid-template-columns: 1fr 1.4fr;
+    grid-template-columns: 2fr 1fr;
     gap: 3rem;
     align-items: start;
   }
@@ -419,7 +419,7 @@
   .carousel {
     position: relative;
     width: 100%;
-    height: 160px;
+    aspect-ratio: 4/3;
     overflow: hidden;
     background: var(--dark);
     border: 1px solid var(--border);
@@ -672,7 +672,7 @@
     .project-row { grid-template-columns: 40px 1fr 36px; }
     .project-genre, .project-format { display: none; }
     .project-expand-inner { grid-template-columns: 1fr; }
-    .carousel { height: 140px; }
+    .carousel { aspect-ratio: 4/3; }
     .contact-strip { grid-template-columns: 1fr; gap: 3rem; padding: 4rem 1.5rem; }
     footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem 1.5rem; }
     .accolades { padding: 4rem 1.5rem; }
