@@ -71,6 +71,7 @@
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
   }
+
   .nav-logo {
     font-family: var(--serif);
     font-size: 1.4rem;
@@ -81,6 +82,7 @@
     text-decoration: none;
   }
   .nav-logo span { color: var(--gold); }
+
   .nav-links {
     display: flex;
     gap: 2.5rem;
@@ -96,6 +98,21 @@
     transition: color 0.3s;
   }
   .nav-links a:hover { color: var(--gold); }
+
+  .nav-back {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--body-text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: color 0.3s;
+  }
+  .nav-back:hover { color: var(--gold); }
+  .nav-back::before { content: '←'; }
 
   /* HERO */
   .writer-hero {
@@ -287,24 +304,46 @@
     color: var(--body-text);
   }
 
-    /* PROJECT ROWS */
-  .project-block {
-    border: 1px solid var(--border);
-    margin-bottom: 2px;
+  /* PROJECTS */
+  .projects {
+    padding: 6rem 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .projects-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 4rem;
+  }
+
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-weight: 300;
+    line-height: 1.1;
+  }
+  .section-title em { font-style: italic; color: var(--gold); }
+
+  .projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .project-row {
     background: var(--card);
+    border: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 80px 2fr 1fr 120px 50px;
+    align-items: center;
+    padding: 0;
     transition: border-color 0.3s;
     overflow: hidden;
   }
-  .project-block.open { border-color: var(--gold); }
 
-  .project-header {
-    display: grid;
-    grid-template-columns: 70px 1fr auto 120px 60px;
-    align-items: center;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  .project-header:hover { background: rgba(184,151,106,0.03); }
+  .project-row:hover { border-color: var(--border-light); }
+  .project-row.open { border-color: var(--gold); }
 
   .project-num {
     font-family: var(--mono);
@@ -318,61 +357,29 @@
     align-items: center;
     justify-content: center;
   }
-  .project-info { padding: 2.5rem 2.5rem; }
+
+  .project-main {
+    padding: 2.5rem 2.5rem;
+  }
+
   .project-title-row {
     font-family: var(--serif);
-    font-size: 1.8rem;
+    font-size: 1.9rem;
     font-weight: 300;
     color: var(--white);
     margin-bottom: 0.3rem;
     line-height: 1.1;
   }
-  .project-by {
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 0.4rem;
-  }
+
   .project-tagline {
     font-family: var(--serif);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-style: italic;
     color: var(--body-text);
   }
-  .project-meta {
-    padding: 2.5rem 2rem;
-    border-left: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    min-width: 140px;
-  }
-  .genre-tag {
-    font-family: var(--mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    display: block;
-  }
-  .format-col {
-    padding: 2.5rem 2rem;
-    border-left: 1px solid var(--border);
-    text-align: center;
-    min-width: 110px;
-  }
-  .format-badge {
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold);
-    border: 1px solid var(--gold);
-    padding: 0.3rem 0.8rem;
-    display: inline-block;
-  }
+
+  .project-row { cursor: pointer; }
+
   .project-toggle {
     font-family: var(--mono);
     font-size: 1.1rem;
@@ -383,27 +390,32 @@
     user-select: none;
     border-left: 1px solid var(--border);
   }
-  .project-block.open .project-toggle { color: var(--gold); }
+  .project-row.open .project-toggle { color: var(--gold); }
 
   .project-expand {
     max-height: 0;
-    overflow: hidden;
     opacity: 0;
-    transition: max-height 0.55s ease, opacity 0.4s ease;
+    overflow: hidden;
+    transition: max-height 0.5s ease, opacity 0.4s ease;
+    padding: 0 2rem;
+    grid-column: 1 / -1;
     border-top: 0px solid var(--border);
   }
-  .project-block.open .project-expand {
-    max-height: 800px;
+
+  .project-row.open .project-expand {
+    max-height: 700px;
     opacity: 1;
     border-top: 1px solid var(--border);
+    padding: 2rem 2rem 2.5rem;
   }
+
   .project-expand-inner {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 1.4fr;
     gap: 3rem;
-    padding: 2.5rem 3rem;
     align-items: start;
   }
+
   .project-logline-label {
     font-family: var(--mono);
     font-size: 0.6rem;
@@ -412,6 +424,7 @@
     color: var(--gold);
     margin-bottom: 0.7rem;
   }
+
   .project-logline {
     font-family: var(--serif);
     font-size: 1rem;
@@ -425,16 +438,43 @@
   .carousel {
     position: relative;
     width: 100%;
-    aspect-ratio: 16/9;
+    aspect-ratio: 3/2;
     overflow: hidden;
-    background: #000;
+    background: var(--dark);
     border: 1px solid var(--border);
     display: block;
   }
-  .carousel-track { display: flex; width: 100%; height: 100%; transition: transform 0.4s ease; }
-  .carousel-slide { flex: 0 0 100%; width: 100%; height: 100%; position: relative; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-  .carousel-slide img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; }
-  .carousel-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem; }
+  .carousel-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.4s ease;
+  }
+  .carousel-slide {
+    flex: 0 0 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background: var(--dark);
+  }
+  .carousel-slide img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+  .carousel-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+  }
   .carousel-placeholder-icon { font-family: var(--serif); font-size: 2rem; color: var(--border-light); font-style: italic; }
   .carousel-placeholder-text { font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--border-light); text-align: center; padding: 0 1rem; }
   .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(8,8,8,0.8); border: 1px solid var(--border); color: var(--white); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; cursor: pointer; z-index: 10; transition: background 0.2s, color 0.2s; user-select: none; }
@@ -447,9 +487,8 @@
   .carousel-label { font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--border-light); text-align: center; padding: 0.5rem; background: var(--card); border-top: 1px solid var(--border); }
 
   .project-genre {
-    padding: 2rem 1.5rem;
+    padding: 2.5rem 2rem;
     border-left: 1px solid var(--border);
-    border-right: 1px solid var(--border);
   }
 
   .genre-tag {
@@ -463,8 +502,9 @@
   }
 
   .project-format {
-    padding: 2rem 1.5rem;
-    text-align: right;
+    padding: 2.5rem 2rem;
+    border-left: 1px solid var(--border);
+    text-align: center;
   }
 
   .format-badge {
@@ -643,15 +683,15 @@
   /* MOBILE */
   @media (max-width: 768px) {
     nav { padding: 1.2rem 1.5rem; }
+    .nav-links { display: none; }
     .writer-hero { grid-template-columns: 1fr; min-height: auto; }
     .hero-left { padding: 6rem 1.5rem 3rem; border-right: none; border-bottom: 1px solid var(--border); }
     .hero-right { min-height: 300px; }
     .accolades-grid { grid-template-columns: 1fr 1fr; }
     .projects { padding: 4rem 1.5rem; }
-        .project-header { grid-template-columns: 40px 1fr 36px; }
-    .project-meta, .format-col { display: none; }
-    .project-toggle { border-left: none; }
-    .project-expand-inner { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1.5rem; }
+    .project-row { grid-template-columns: 40px 1fr 36px; }
+    .project-genre, .project-format { display: none; }
+    .project-expand-inner { grid-template-columns: 1fr; }
     .carousel { aspect-ratio: 16/9; }
     .contact-strip { grid-template-columns: 1fr; gap: 3rem; padding: 4rem 1.5rem; }
     footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem 1.5rem; }
@@ -750,20 +790,19 @@
   <div class="projects-list">
 
     <!-- PROJECT 01 -->
-    <div class="project-block reveal" onclick="toggleProject(this)">
-      <div class="project-header">
-        <div class="project-num">01</div>
-        <div class="project-info">
+    <div class="project-row reveal" onclick="toggleProject(this)">
+      <div class="project-num">01</div>
+      <div class="project-main">
         <div class="project-title-row">The Long Way South</div>
         <div class="project-tagline">The longest journey is finding where you belong.</div>
       </div>
-        <div class="project-meta">
+      <div class="project-genre">
         <span class="genre-tag">Adventure</span>
         <span class="genre-tag">Animation</span>
         <span class="genre-tag">Family</span>
       </div>
-        <div class="format-col"><span class="format-badge">Feature</span></div>
-        <div class="project-toggle">+</div>
+      <div class="project-format"><span class="format-badge">Feature</span></div>
+      <div class="project-toggle">+</div>
       <div class="project-expand">
         <div class="project-expand-inner">
           <div>
@@ -796,19 +835,18 @@
     </div>
 
     <!-- PROJECT 02 -->
-    <div class="project-block reveal" onclick="toggleProject(this)">
-      <div class="project-header">
-        <div class="project-num">02</div>
-        <div class="project-info">
+    <div class="project-row reveal" onclick="toggleProject(this)">
+      <div class="project-num">02</div>
+      <div class="project-main">
         <div class="project-title-row">Shear Highs</div>
         <div class="project-tagline">Small town. Big secrets. High stakes.</div>
       </div>
-        <div class="project-meta">
+      <div class="project-genre">
         <span class="genre-tag">Dark Comedy</span>
         <span class="genre-tag">Drama</span>
       </div>
-        <div class="format-col"><span class="format-badge">TV Pilot</span></div>
-        <div class="project-toggle">+</div>
+      <div class="project-format"><span class="format-badge">TV Pilot</span></div>
+      <div class="project-toggle">+</div>
       <div class="project-expand">
         <div class="project-expand-inner">
           <div>
@@ -833,20 +871,19 @@
     </div>
 
     <!-- PROJECT 03 -->
-    <div class="project-block reveal" onclick="toggleProject(this)">
-      <div class="project-header">
-        <div class="project-num">03</div>
-        <div class="project-info">
+    <div class="project-row reveal" onclick="toggleProject(this)">
+      <div class="project-num">03</div>
+      <div class="project-main">
         <div class="project-title-row">STNY</div>
         <div class="project-tagline">Between man and machine stands one who remembers.</div>
       </div>
-        <div class="project-meta">
+      <div class="project-genre">
         <span class="genre-tag">Adventure</span>
         <span class="genre-tag">Animation</span>
         <span class="genre-tag">Sci-Fi</span>
       </div>
-        <div class="format-col"><span class="format-badge">Feature</span></div>
-        <div class="project-toggle">+</div>
+      <div class="project-format"><span class="format-badge">Feature</span></div>
+      <div class="project-toggle">+</div>
       <div class="project-expand">
         <div class="project-expand-inner">
           <div>
@@ -875,16 +912,15 @@
     </div>
 
     <!-- PROJECT 04 -->
-    <div class="project-block reveal" onclick="toggleProject(this)">
-      <div class="project-header">
-        <div class="project-num">04</div>
-        <div class="project-info">
+    <div class="project-row reveal" onclick="toggleProject(this)">
+      <div class="project-num">04</div>
+      <div class="project-main">
         <div class="project-title-row">Motions</div>
         <div class="project-tagline">Grief... never ends.</div>
       </div>
-        <div class="project-meta"><span class="genre-tag">Drama</span></div>
-        <div class="format-col"><span class="format-badge">Short</span></div>
-        <div class="project-toggle">+</div>
+      <div class="project-genre"><span class="genre-tag">Drama</span></div>
+      <div class="project-format"><span class="format-badge">Short</span></div>
+      <div class="project-toggle">+</div>
       <div class="project-expand">
         <div class="project-expand-inner">
           <div>
@@ -916,16 +952,15 @@
     </div>
 
     <!-- PROJECT 05 -->
-    <div class="project-block reveal" onclick="toggleProject(this)">
-      <div class="project-header">
-        <div class="project-num">05</div>
-        <div class="project-info">
+    <div class="project-row reveal" onclick="toggleProject(this)">
+      <div class="project-num">05</div>
+      <div class="project-main">
         <div class="project-title-row">Time Flies Slowly By</div>
         <div class="project-tagline">—</div>
       </div>
-        <div class="project-meta"><span class="genre-tag">Drama</span></div>
-        <div class="format-col"><span class="format-badge">Short</span></div>
-        <div class="project-toggle">+</div>
+      <div class="project-genre"><span class="genre-tag">Drama</span></div>
+      <div class="project-format"><span class="format-badge">Short</span></div>
+      <div class="project-toggle">+</div>
       <div class="project-expand">
         <div class="project-expand-inner">
           <div>
@@ -952,16 +987,15 @@
     </div>
 
     <!-- PROJECT 06 -->
-    <div class="project-block reveal" onclick="toggleProject(this)">
-      <div class="project-header">
-        <div class="project-num">06</div>
-        <div class="project-info">
+    <div class="project-row reveal" onclick="toggleProject(this)">
+      <div class="project-num">06</div>
+      <div class="project-main">
         <div class="project-title-row">A Night in Wolle River</div>
         <div class="project-tagline">—</div>
       </div>
-        <div class="project-meta"><span class="genre-tag">Drama</span></div>
-        <div class="format-col"><span class="format-badge">Short</span></div>
-        <div class="project-toggle">+</div>
+      <div class="project-genre"><span class="genre-tag">Drama</span></div>
+      <div class="project-format"><span class="format-badge">Short</span></div>
+      <div class="project-toggle">+</div>
       <div class="project-expand">
         <div class="project-expand-inner">
           <div>
@@ -986,16 +1020,15 @@
     </div>
 
     <!-- PROJECT 07 -->
-    <div class="project-block reveal" onclick="toggleProject(this)">
-      <div class="project-header">
-        <div class="project-num">07</div>
-        <div class="project-info">
+    <div class="project-row reveal" onclick="toggleProject(this)">
+      <div class="project-num">07</div>
+      <div class="project-main">
         <div class="project-title-row">A Dawn of a Thousand Suns</div>
         <div class="project-tagline">—</div>
       </div>
-        <div class="project-meta"><span class="genre-tag">Drama</span></div>
-        <div class="format-col"><span class="format-badge">Short</span></div>
-        <div class="project-toggle">+</div>
+      <div class="project-genre"><span class="genre-tag">Drama</span></div>
+      <div class="project-format"><span class="format-badge">Short</span></div>
+      <div class="project-toggle">+</div>
       <div class="project-expand">
         <div class="project-expand-inner">
           <div>
@@ -1100,15 +1133,15 @@
   });
 
   // Project toggle
-    function toggleProject(block) {
-    const isOpen = block.classList.contains('open');
-    document.querySelectorAll('.project-block.open').forEach(b => {
-      b.classList.remove('open');
-      b.querySelector('.project-toggle').textContent = '+';
+  function toggleProject(row) {
+    const isOpen = row.classList.contains('open');
+    document.querySelectorAll('.project-row.open').forEach(r => {
+      r.classList.remove('open');
+      r.querySelector('.project-toggle').textContent = '+';
     });
     if (!isOpen) {
-      block.classList.add('open');
-      block.querySelector('.project-toggle').textContent = '−';
+      row.classList.add('open');
+      row.querySelector('.project-toggle').textContent = '−';
     }
   }
 
@@ -1122,8 +1155,6 @@
     idx = (idx + dir + slides.length) % slides.length;
     carousel.dataset.index = idx;
     track.style.transform = `translateX(-${idx * 100}%)`;
-    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
-  }%)`;
     dots.forEach((d, i) => d.classList.toggle('active', i === idx));
   }
 
