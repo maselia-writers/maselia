@@ -129,7 +129,9 @@
   .footer-logo span { color: var(--gold); }
   .footer-copy { font-family: var(--mono); font-size: .6rem; letter-spacing: .2em; color: var(--border-light); text-transform: uppercase; }
 
-  /* REVEAL */
+  /* FORM SUCCESS */
+  .form-success { display: none; font-family: var(--serif); font-size: 1.1rem; font-style: italic; color: var(--gold); padding: 2rem; border: 1px solid var(--gold); margin-top: 1rem; }
+  .form-success.visible { display: block; }
   .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
@@ -181,7 +183,7 @@
       <p class="contact-text">Maselia operates on the belief that the right conversation at the right time changes everything. Reach out directly or use the form and we'll get back to you within 48 hours.</p>
       <div class="contact-detail">
         <div class="contact-detail-label">Enquiries</div>
-        <div class="contact-detail-value">hello@maselia.com</div>
+        <div class="contact-detail-value">info@maselia.org</div>
       </div>
       <div class="contact-detail">
         <div class="contact-detail-label">Based In</div>
@@ -192,18 +194,20 @@
         <div class="contact-detail-value">Within 48 Hours</div>
       </div>
     </div>
-    <div class="contact-form reveal">
+    <form class="contact-form reveal" id="contact-form" action="https://formspree.io/f/xqewrrnp" method="POST">
+      <input type="hidden" name="_subject" value="New Maselia Enquiry">
+      <input type="hidden" name="_replyto" value="info@maselia.org">
       <div class="form-group">
-        <label class="form-label">Your Name</label>
-        <input class="form-input" type="text" placeholder="Full name">
+        <label class="form-label" for="c-name">Your Name</label>
+        <input class="form-input" id="c-name" type="text" name="name" placeholder="Full name" required>
       </div>
       <div class="form-group">
-        <label class="form-label">Email Address</label>
-        <input class="form-input" type="email" placeholder="your@email.com">
+        <label class="form-label" for="c-email">Email Address</label>
+        <input class="form-input" id="c-email" type="email" name="email" placeholder="your@email.com" required>
       </div>
       <div class="form-group">
-        <label class="form-label">Service Required</label>
-        <select class="form-select">
+        <label class="form-label" for="c-service">Service Required</label>
+        <select class="form-select" id="c-service" name="service">
           <option value="">Select a service</option>
           <option>Screenwriting</option>
           <option>Script Editing</option>
@@ -215,11 +219,12 @@
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Your Message</label>
-        <textarea class="form-textarea" placeholder="Tell us about your project..."></textarea>
+        <label class="form-label" for="c-message">Your Message</label>
+        <textarea class="form-textarea" id="c-message" name="message" placeholder="Tell us about your project..." required></textarea>
       </div>
-      <button class="btn-submit">Send Enquiry →</button>
-    </div>
+      <button class="btn-submit" type="submit">Send Enquiry →</button>
+      <div class="form-success" id="form-success">Thank you — your message has been sent. We'll be in touch within 48 hours.</div>
+    </form>
   </div>
 </section>
 
@@ -265,6 +270,35 @@
     el.addEventListener('mouseenter', () => { cursor.style.width='14px'; cursor.style.height='14px'; ring.style.width='48px'; ring.style.height='48px'; ring.style.opacity='.8'; });
     el.addEventListener('mouseleave', () => { cursor.style.width='8px'; cursor.style.height='8px'; ring.style.width='32px'; ring.style.height='32px'; ring.style.opacity='.5'; });
   });
+  // Contact form — Formspree AJAX submission
+  const form = document.getElementById('contact-form');
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = form.querySelector('.btn-submit');
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          form.reset();
+          document.getElementById('form-success').classList.add('visible');
+          btn.style.display = 'none';
+        } else {
+          btn.textContent = 'Error — try again';
+          btn.disabled = false;
+        }
+      } catch {
+        btn.textContent = 'Error — try again';
+        btn.disabled = false;
+      }
+    });
+  }
+
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver(entries => {
     entries.forEach((entry, i) => {
