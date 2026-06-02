@@ -5,617 +5,350 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Maselia — Screenwriters</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,200;0,300;0,400;1,200;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
-/* ═══════════════════════════════════════════════════════════════
-   DESIGN TOKENS
-   Emil: always named custom curves — built-in easings are too weak
-═══════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --ink:    #020203;
-  --deep:   #06060b;
-  --card:   #09090f;
-  --b0:     #0e0e17;
-  --b1:     #171724;
-  --gold:   #b89467;
-  --goldhv: #ceaa7b;
-  --cream:  #edeade;
-  --mute:   #3c3c4a;
-  --body:   #a09c94;
+  --ink:   #020203;
+  --card:  #08080f;
+  --b0:    #0d0d18;
+  --b1:    #161624;
+  --gold:  #b89467;
+  --goldh: #d4aa78;
+  --cream: #edead8;
+  --mute:  #3a3a48;
+  --body:  #9e9a92;
   --sf: 'Cormorant Garamond', Georgia, serif;
   --sm: 'DM Mono', monospace;
-  /* Emil: strong custom curves only */
-  --eo:  cubic-bezier(0.23, 1, 0.32, 1);      /* ease-out — entering */
-  --eio: cubic-bezier(0.77, 0, 0.175, 1);     /* ease-in-out — on-screen */
-  --spr: cubic-bezier(0.34, 1.56, 0.64, 1);   /* spring — bounce feel */
-  --drw: cubic-bezier(0.32, 0.72, 0, 1);      /* drawer — iOS feel */
+  --eo:  cubic-bezier(0.23,1,0.32,1);
+  --eio: cubic-bezier(0.77,0,0.175,1);
+  --spr: cubic-bezier(0.34,1.56,0.64,1);
 }
 
 html { overflow-x: hidden; }
-body {
-  background: var(--ink); color: var(--cream);
-  font-family: var(--sf); overflow-x: hidden;
-  cursor: none; -webkit-font-smoothing: antialiased;
-}
+body { background: var(--ink); color: var(--cream); font-family: var(--sf); overflow-x: hidden; cursor: none; -webkit-font-smoothing: antialiased; }
 
-/* ═══════════════════════════════════════════════════════════════
-   CURSOR
-   Emil: dot = 160ms (instant feedback)
-         ring = 420ms (spring lag creates depth perception)
-         press = 100ms exactly
-═══════════════════════════════════════════════════════════════ */
-#cd, #cr {
-  position: fixed; pointer-events: none; border-radius: 50%;
-  transform: translate(-50%, -50%);
-}
-#cd {
-  z-index: 9999; width: 6px; height: 6px; background: var(--gold);
-  transition: width 160ms var(--eo), height 160ms var(--eo), background 160ms ease;
-}
-#cr {
-  z-index: 9998; width: 30px; height: 30px;
-  border: 1px solid rgba(184, 148, 103, .28);
-  transition: width 420ms var(--eo), height 420ms var(--eo), border-color 260ms ease;
-}
-.H #cd { width: 10px; height: 10px; background: var(--cream); }
-.H #cr { width: 48px; height: 48px; border-color: rgba(184, 148, 103, .52); }
-/* Emil: 100ms press — must feel like a physical key */
-.P #cd { width: 4px; height: 4px; transition-duration: 100ms; }
-.P #cr { width: 18px; height: 18px; transition-duration: 100ms; }
+/* CURSOR */
+#cd,#cr { position:fixed; pointer-events:none; border-radius:50%; transform:translate(-50%,-50%); }
+#cd { z-index:9999; width:6px; height:6px; background:var(--gold); transition:width 160ms var(--eo),height 160ms var(--eo),background 160ms ease; }
+#cr { z-index:9998; width:30px; height:30px; border:1px solid rgba(184,148,103,.3); transition:width 400ms var(--eo),height 400ms var(--eo),border-color 260ms ease; }
+.H #cd { width:10px; height:10px; background:var(--cream); }
+.H #cr { width:48px; height:48px; border-color:rgba(184,148,103,.55); }
+.P #cd { width:4px; height:4px; transition-duration:100ms; }
+.P #cr { width:18px; height:18px; transition-duration:100ms; }
 
-/* ═══════════════════════════════════════════════════════════════
-   THREE.JS CANVAS
-═══════════════════════════════════════════════════════════════ */
-#bg {
-  position: fixed; inset: 0; width: 100%; height: 100%;
-  pointer-events: none; z-index: 0;
-}
+/* THREE BG */
+#bg { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; }
 
-/* ═══════════════════════════════════════════════════════════════
-   NAV — button-style links matching CTAs for system coherence
-═══════════════════════════════════════════════════════════════ */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 1.5rem 3rem;
-}
-nav::before {
-  content: ''; position: absolute; inset: 0;
-  background: rgba(2, 2, 3, .92);
-  backdrop-filter: blur(28px) saturate(1.8);
-  -webkit-backdrop-filter: blur(28px) saturate(1.8);
-  border-bottom: 1px solid var(--b0); pointer-events: none;
-}
-.n-logo {
-  font-family: var(--sf); font-size: 1.3rem; font-weight: 200;
-  letter-spacing: .44em; text-transform: uppercase;
-  color: var(--cream); text-decoration: none;
-  position: relative; z-index: 1;
-}
-.n-logo em { color: var(--gold); font-style: italic; }
+/* NAV */
+nav { position:fixed; top:0; left:0; right:0; z-index:200; display:flex; justify-content:space-between; align-items:center; padding:1.5rem 3rem; }
+nav::before { content:''; position:absolute; inset:0; background:rgba(2,2,3,.0); backdrop-filter:blur(0px); border-bottom:1px solid rgba(13,13,24,0); pointer-events:none; transition:background 600ms ease,backdrop-filter 600ms ease,border-color 600ms ease; }
+nav.scrolled::before { background:rgba(2,2,3,.92); backdrop-filter:blur(28px) saturate(1.8); -webkit-backdrop-filter:blur(28px) saturate(1.8); border-bottom-color:var(--b0); }
+.n-logo { font-family:var(--sf); font-size:1.3rem; font-weight:200; letter-spacing:.44em; text-transform:uppercase; color:var(--cream); text-decoration:none; position:relative; z-index:1; }
+.n-logo em { color:var(--gold); font-style:italic; }
+.n-links { display:flex; gap:.5rem; list-style:none; position:relative; z-index:1; }
+.n-links a { font-family:var(--sm); font-size:.55rem; letter-spacing:.18em; text-transform:uppercase; color:var(--cream); text-decoration:none; border:1px solid rgba(255,255,255,.12); padding:.58rem 1.1rem; display:inline-flex; align-items:center; position:relative; overflow:hidden; transition:color 250ms var(--eo),border-color 250ms var(--eo); }
+.n-links a::before { content:''; position:absolute; inset:0; background:var(--gold); transform:translateX(-102%); transition:transform 300ms var(--eo); z-index:-1; }
+.n-links a:hover { color:var(--ink); border-color:var(--gold); }
+.n-links a:hover::before { transform:translateX(0); }
+.n-links a:active { transform:scale(.97); transition:transform 100ms ease; }
 
-.n-links { display: flex; gap: .48rem; list-style: none; position: relative; z-index: 1; }
-.n-links a {
-  font-family: var(--sm); font-size: .55rem; letter-spacing: .18em; text-transform: uppercase;
-  color: var(--cream); text-decoration: none;
-  border: 1px solid var(--b1); padding: .58rem 1.1rem;
-  display: inline-flex; align-items: center;
-  position: relative; overflow: hidden;
-  /* Emil: hover = 250ms ease-out (responsive), not ease-in (sluggish) */
-  transition: color 250ms var(--eo), border-color 250ms var(--eo);
-}
-.n-links a::before {
-  content: ''; position: absolute; inset: 0;
-  background: var(--gold); transform: translateX(-102%);
-  /* Emil: fill sweep 300ms ease-out */
-  transition: transform 300ms var(--eo); z-index: -1;
-}
-.n-links a:hover { color: var(--ink); border-color: var(--gold); }
-.n-links a:hover::before { transform: translateX(0); }
-/* Emil: active = scale(0.97), 100ms — mandatory physical press */
-.n-links a:active { transform: scale(.97); transition: transform 100ms ease; }
-
-/* ═══════════════════════════════════════════════════════════════
-   MARQUEE STRIP — literary context, runs above hero
-   Emil: constant motion = linear easing
-═══════════════════════════════════════════════════════════════ */
-.mq-strip {
-  position: relative; z-index: 2; overflow: hidden;
-  border-bottom: 1px solid var(--b0);
-  padding-top: 5.4rem; /* nav clearance */
-}
-.mq-track {
-  display: flex; white-space: nowrap;
-  /* Emil: linear for constant motion */
-  animation: mq 30s linear infinite;
-}
-.mq-track:hover { animation-play-state: paused; }
-.mq-track span {
-  font-family: var(--sm); font-size: .5rem; letter-spacing: .36em; text-transform: uppercase;
-  color: var(--mute); padding: .75rem 2rem;
-  border-right: 1px solid var(--b0); flex-shrink: 0;
-  transition: color 200ms ease;
-}
-.mq-track span:hover { color: rgba(184, 148, 103, .5); }
-.mq-track span em { color: rgba(184, 148, 103, .38); font-style: normal; margin: 0 .5rem; }
-@keyframes mq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-/* ═══════════════════════════════════════════════════════════════
-   HERO — screenplay grid layout (sidebar + main)
-═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   HERO — full-screen cinematic
+═══════════════════════════════════════ */
 .hero {
-  min-height: calc(100vh - 2.8rem);
-  display: grid; grid-template-columns: 72px 1fr;
+  position: relative; height: 100vh; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+}
+
+/* Full-screen image layer — replace src with your image */
+.hero-img {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    linear-gradient(to bottom, rgba(2,2,3,0) 30%, rgba(2,2,3,.6) 70%, rgba(2,2,3,1) 100%),
+    linear-gradient(to right, rgba(2,2,3,.4) 0%, transparent 60%);
+}
+/* This is where your hero image goes — put it as background-image on .hero-bg-img */
+.hero-bg-img {
+  position: absolute; inset: 0; z-index: -1;
+  background-color: #0a0a18; /* fallback until image added */
+  background-size: cover; background-position: center;
+  background-repeat: no-repeat;
+  /* To add your image: background-image: url('images/hero.jpg'); */
+  transform-origin: center;
+  will-change: transform;
+}
+/* Grain overlay for cinematic texture */
+.hero-grain {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+  opacity: .45;
+}
+/* Vignette */
+.hero-vignette {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(2,2,3,.75) 100%);
+}
+
+.hero-content {
+  position: relative; z-index: 3; text-align: center;
+  max-width: 900px; padding: 0 2rem;
+}
+.hero-pre {
+  font-family: var(--sm); font-size: .58rem; letter-spacing: .55em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 2.5rem; display: block;
+  opacity: 0;
+}
+.hero-title {
+  font-size: clamp(4.5rem, 14vw, 14rem); font-weight: 200; line-height: 1.0;
+  letter-spacing: -.015em; padding-bottom: .16em; overflow: visible;
+}
+.hero-title em { font-style: italic; color: var(--gold); }
+/* Mask each word — hide overflow but don't clip descenders */
+.hero-title .tl { display: block; overflow: hidden; padding-bottom: .08em; }
+.hero-title .tw { display: inline-block; transform: translateY(110%); }
+.hero-tagline {
+  font-family: var(--sf); font-size: clamp(.9rem, 1.8vw, 1.2rem); font-style: italic; font-weight: 300;
+  color: rgba(237,234,216,.75); margin-top: 2rem; max-width: 520px; margin-left: auto; margin-right: auto;
+  line-height: 1.8; opacity: 0;
+}
+.hero-scroll-hint {
+  position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%);
+  z-index: 3; display: flex; flex-direction: column; align-items: center; gap: .8rem;
+  opacity: 0;
+}
+.hero-scroll-hint span { font-family: var(--sm); font-size: .5rem; letter-spacing: .4em; text-transform: uppercase; color: rgba(184,148,103,.6); }
+.scroll-line { width: 1px; height: 50px; background: linear-gradient(to bottom, rgba(184,148,103,.6), transparent); animation: scrolll 2.5s var(--eio) infinite 2s; }
+@keyframes scrolll { 0%,100%{transform:scaleY(0);transform-origin:top;opacity:0}25%{opacity:1}65%{transform:scaleY(1);transform-origin:top}66%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom;opacity:0} }
+
+/* Scan line */
+.scanline { position:absolute; left:0; right:0; height:1px; pointer-events:none; z-index:4; background:linear-gradient(90deg,transparent,rgba(184,148,103,.18),transparent); animation:scan 8s linear infinite; }
+@keyframes scan { 0%{top:-1px;opacity:0}5%{opacity:1}95%{opacity:.3}100%{top:100vh;opacity:0} }
+
+/* ═══════════════════════════════════════
+   SCROLL SECTIONS — Rockstar style
+   Each section pins, content reveals, then unpins
+═══════════════════════════════════════ */
+
+/* Pin wrapper */
+.pin-wrap { position: relative; }
+
+/* ── ABOUT SECTION ── */
+.about-scene {
+  height: 100vh; display: flex; align-items: center;
   position: relative; z-index: 2;
-  /* Emil: overflow:visible — NEVER clip descenders */
-  overflow: visible;
+  border-top: 1px solid var(--b0);
 }
-
-/* Screenplay sidebar — act numbers, like a real script */
-.hero-sb {
-  border-right: 1px solid var(--b0);
-  display: flex; flex-direction: column;
-  justify-content: space-between; align-items: center;
-  padding: 3.5rem 0;
-}
-.sb-act {
-  font-family: var(--sm); font-size: .46rem; letter-spacing: .32em; text-transform: uppercase;
-  color: var(--mute); writing-mode: vertical-rl;
-  opacity: 0; animation: fIn 800ms ease forwards 1600ms;
-}
-.sb-wire { width: 1px; flex: 1; background: linear-gradient(to bottom, var(--b0), rgba(184,148,103,.18), var(--b0)); margin: .5rem 0; }
-.sb-n {
-  font-family: var(--sm); font-size: .44rem; letter-spacing: .2em; color: rgba(184,148,103,.25);
-  opacity: 0; animation: fIn 800ms ease forwards 1800ms;
-}
-@keyframes fIn { to { opacity: 1; } }
-
-/* Main hero content */
-.hero-main {
-  padding: 3.5rem 3rem 3.5rem 3.5rem;
-  display: flex; flex-direction: column; justify-content: center;
-  position: relative; overflow: visible;
-}
-
-/* Ambient ink glow */
-.h-glow {
-  position: absolute; width: 850px; height: 850px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(184,148,103,.04) 0%, transparent 64%);
-  top: 48%; left: 40%; transform: translate(-50%, -50%);
-  pointer-events: none; z-index: 0;
-  animation: breathe 13s ease-in-out infinite;
-}
-@keyframes breathe {
-  0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: .55; }
-  50%       { transform: translate(-50%,-54%) scale(1.1); opacity: 1; }
-}
-
-/* Ghost letterforms — three depth layers, parallax at different speeds */
-.gh-1 {
-  position: absolute; bottom: -14%; right: -2%;
-  font-family: var(--sf); font-size: 29vw; font-weight: 200; font-style: italic;
-  color: transparent; -webkit-text-stroke: 1px rgba(184,148,103,.035);
+.about-scene .bg-word {
+  position: absolute; right: -3%; top: 50%; transform: translateY(-50%);
+  font-family: var(--sf); font-size: 28vw; font-weight: 200; font-style: italic;
+  color: transparent; -webkit-text-stroke: 1px rgba(184,148,103,.04);
   pointer-events: none; user-select: none; line-height: 1; white-space: nowrap;
-  will-change: transform; z-index: 0;
+  z-index: 0;
 }
-.gh-2 {
-  position: absolute; top: 8%; left: -1%;
-  font-family: var(--sf); font-size: 8.5vw; font-weight: 200; font-style: italic;
-  color: transparent; -webkit-text-stroke: 1px rgba(184,148,103,.026);
-  pointer-events: none; user-select: none; white-space: nowrap;
-  will-change: transform; z-index: 0;
+.about-inner {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8rem;
+  padding: 0 3rem 0 4.5rem; width: 100%; position: relative; z-index: 1;
+  align-items: center;
 }
-/* Mono chapter marker — barely visible upper right */
-.gh-3 {
-  position: absolute; top: 12%; right: 3rem;
-  font-family: var(--sm); font-size: .5rem; letter-spacing: .42em; text-transform: uppercase;
-  color: rgba(184,148,103,.18); writing-mode: vertical-rl;
-  opacity: 0; animation: fIn 1s ease forwards 2.2s;
-  z-index: 1;
-}
-
-/* Horizontal scan line — cinematic texture */
-.scanline {
-  position: absolute; left: 0; right: 0; height: 1px; pointer-events: none; z-index: 1;
-  background: linear-gradient(90deg, transparent 0%, rgba(184,148,103,.22) 50%, transparent 100%);
-  animation: scan 7s linear infinite;
-}
-@keyframes scan {
-  0%   { top: -1px; opacity: 0; }
-  5%   { opacity: 1; }
-  95%  { opacity: .35; }
-  100% { top: 100vh; opacity: 0; }
-}
-
-.hero-body { position: relative; z-index: 2; max-width: 980px; }
-
-/* Eyebrow — clip-path wipe (WAAPI) — more cinematic than opacity fade
-   Emil: clip-path = precise direction, letterforms reveal left-to-right like type */
-.h-eye {
-  font-family: var(--sm); font-size: .58rem; letter-spacing: .5em; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 3rem;
-  display: inline-flex; align-items: center; gap: .55rem;
-  /* start clipped, JS animates with WAAPI */
-  clip-path: inset(0 100% 0 0);
-}
-/* Blinking cursor dot — typewriter authenticity */
-.h-eye::after {
-  content: ''; width: 2px; height: .75em; background: var(--gold);
-  animation: blink 1.1s step-end infinite; opacity: 0;
-}
-@keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
-
-/* Title — each word erupts from clipped container
-   Emil: overflow:hidden on .tl (traps motion), overflow:visible on h1 (protects descenders) */
-.h-title {
-  font-size: clamp(3.8rem, 12.5vw, 12.5rem);
-  font-weight: 200; line-height: 1.05;
-  letter-spacing: -.014em;
-  overflow: visible;
-  /* Emil: generous padding-bottom — descenders (y,g,p) need room */
-  padding-bottom: .18em;
-}
-.tl { display: block; overflow: hidden; padding-bottom: .1em; margin-bottom: -.06em; }
-.tw {
-  display: inline-block; transform: translateY(105%);
-  /* Emil: ease-out on enter — starts immediately, feels responsive */
-  animation: tw 1s var(--eo) forwards;
-}
-.tl:nth-child(1) .tw { animation-delay: 140ms; }
-.tl:nth-child(2) .tw { animation-delay: 270ms; }
-.tl:nth-child(3) .tw { animation-delay: 400ms; }
-.h-title em { font-style: italic; color: var(--gold); }
-@keyframes tw { to { transform: translateY(0); } }
-
-/* Gold rule — grows in after title settles */
-.h-rule {
-  width: 0; height: 1px; background: var(--gold); margin: 3rem 0;
-  animation: grule 650ms var(--eo) forwards 680ms;
-}
-@keyframes grule { to { width: 48px; } }
-
-.h-sub {
-  font-family: var(--sf); font-size: 1.12rem; font-weight: 300; font-style: italic;
-  color: var(--body); max-width: 420px; line-height: 1.88;
-  opacity: 0; transform: translateY(10px);
-  animation: rise 680ms var(--eo) forwards 780ms;
-}
-@keyframes rise { to { opacity: 1; transform: translateY(0); } }
-
-/* CTA row — same button style as nav (design system coherence) */
-.h-ctas {
-  display: flex; flex-wrap: wrap; gap: .52rem; margin-top: 2.8rem;
-  opacity: 0; animation: rise 680ms var(--eo) forwards 940ms;
-}
-.hb {
-  font-family: var(--sm); font-size: .56rem; letter-spacing: .18em; text-transform: uppercase;
-  color: var(--cream); text-decoration: none;
-  border: 1px solid var(--b1); padding: .7rem 1.3rem;
-  display: inline-flex; align-items: center;
-  position: relative; overflow: hidden;
-  transition: color 250ms var(--eo), border-color 250ms var(--eo);
-}
-.hb::before {
-  content: ''; position: absolute; inset: 0;
-  background: var(--gold); transform: translateX(-102%);
-  transition: transform 300ms var(--eo); z-index: -1;
-}
-.hb:hover { color: var(--ink); border-color: var(--gold); }
-.hb:hover::before { transform: translateX(0); }
-.hb:active { transform: scale(.97); transition: transform 100ms ease; }
-.hb[href^="#"]::after    { content: ' ↓'; font-size: .48rem; opacity: .6; margin-left: .22rem; }
-.hb[href$=".html"]::after { content: ' →'; font-size: .48rem; opacity: .6; margin-left: .22rem; }
-
-/* Hero status bar — writer names + scroll cue */
-.h-bar {
-  border-top: 1px solid var(--b0); padding: 1.55rem 3rem 1.55rem 4.5rem;
-  display: flex; justify-content: space-between; align-items: center;
-  position: relative; z-index: 2;
-  opacity: 0; animation: rise 600ms var(--eo) forwards 1300ms;
-}
-.h-names {
-  font-family: var(--sm); font-size: .52rem; letter-spacing: .22em; text-transform: uppercase;
-  color: var(--mute);
-}
-.h-names em { color: rgba(184,148,103,.45); font-style: normal; margin: 0 .5rem; }
-.h-scroll {
-  font-family: var(--sm); font-size: .5rem; letter-spacing: .28em; text-transform: uppercase;
-  color: var(--mute); display: flex; align-items: center; gap: .75rem;
-}
-/* Emil: linear for the pulse animation (constant motion) */
-.h-scroll::before {
-  content: ''; width: 1px; height: 42px;
-  background: linear-gradient(to bottom, transparent, var(--gold));
-  animation: sp 3.2s var(--eio) infinite 2s;
-}
-@keyframes sp {
-  0%,100% { transform: scaleY(0); transform-origin: top; opacity: 0; }
-  22%     { opacity: 1; }
-  60%     { transform: scaleY(1); transform-origin: top; }
-  61%     { transform-origin: bottom; }
-  100%    { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   SECTIONS
-═══════════════════════════════════════════════════════════════ */
-section { position: relative; z-index: 2; }
-.pad { padding: 10rem 3rem 10rem 4.5rem; border-top: 1px solid var(--b0); }
-
-/* Script-format section number in left gutter */
-.s-no {
-  position: absolute; left: 0; top: 10rem;
-  width: 72px; display: flex; flex-direction: column; align-items: center; gap: .4rem;
-}
-.s-no-l { width: 1px; height: 36px; background: linear-gradient(to bottom, transparent, rgba(184,148,103,.25)); }
-.s-no-t { font-family: var(--sm); font-size: .42rem; letter-spacing: .2em; color: rgba(184,148,103,.22); writing-mode: vertical-rl; }
-
-.s-label { font-family: var(--sm); font-size: .56rem; letter-spacing: .4em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: 1.5rem; }
-.s-h2 { font-size: clamp(2.4rem, 4.8vw, 4.6rem); font-weight: 200; line-height: .96; }
-.s-h2 em { font-style: italic; color: var(--gold); }
-
-/* WAAPI pre-states — Emil: CSS off main thread */
-.rv   { opacity: 0; transform: translateY(20px); }
-.rv-l { opacity: 0; transform: translateX(-16px); }
-.rv-r { opacity: 0; transform: translateX(16px); }
-/* Stagger pre-state */
-.stg > * { opacity: 0; transform: translateY(8px); }
-
-/* ═══════════════════════════════════════════════════════════════
-   ABOUT
-═══════════════════════════════════════════════════════════════ */
-.about-g { display: grid; grid-template-columns: 1fr 1fr; gap: 7rem; margin-top: 4rem; align-items: start; }
-.about-p { font-family: var(--sf); font-size: 1.04rem; font-weight: 300; line-height: 1.96; color: var(--body); margin-bottom: 1.4rem; }
+.about-left { }
+.about-label { font-family: var(--sm); font-size: .56rem; letter-spacing: .42em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: 1.8rem; }
+.about-h { font-size: clamp(2.4rem, 4.5vw, 4.5rem); font-weight: 200; line-height: .96; margin-bottom: 3rem; }
+.about-h em { font-style: italic; color: var(--gold); }
+.about-p { font-family: var(--sf); font-size: 1.05rem; font-weight: 300; line-height: 1.95; color: var(--body); margin-bottom: 1.4rem; }
 .about-p strong { color: var(--cream); font-weight: 400; }
-
-.stat-g { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.about-right { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
 .sbox {
-  background: var(--card); border: 1px solid var(--b0); padding: 2rem;
-  position: relative; overflow: hidden;
-  /* Emil: only specific properties — never transition:all */
+  background: rgba(9,9,15,.7); border: 1px solid var(--b0); padding: 2.2rem;
+  position: relative; overflow: hidden; backdrop-filter: blur(10px);
   transition: border-color 250ms ease;
 }
-/* Radial shimmer via CSS vars set per-mousemove */
-.sbox::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(184,148,103,.08) 0%, transparent 52%);
-  opacity: 0; transition: opacity 280ms ease;
-}
-/* Bottom gold bar grows on hover */
-.sbox::after {
-  content: ''; position: absolute; bottom: 0; left: 0;
-  height: 2px; width: 0; background: var(--gold);
-  transition: width 320ms var(--eo);
-}
-@media (hover: hover) and (pointer: fine) {
-  .sbox:hover { border-color: var(--b1); }
-  .sbox:hover::before { opacity: 1; }
-  .sbox:hover::after { width: 100%; }
-}
-.sn { font-family: var(--sf); font-size: 3.8rem; font-weight: 200; color: var(--gold); line-height: 1; margin-bottom: .4rem; }
-.sl { font-family: var(--sm); font-size: .54rem; letter-spacing: .2em; text-transform: uppercase; color: var(--mute); }
+.sbox::after { content:''; position:absolute; bottom:0; left:0; height:2px; width:0; background:var(--gold); transition:width 350ms var(--eo); }
+@media(hover:hover) and (pointer:fine) { .sbox:hover { border-color:var(--b1); } .sbox:hover::after { width:100%; } }
+.sn { font-family:var(--sf); font-size:3.8rem; font-weight:200; color:var(--gold); line-height:1; margin-bottom:.4rem; }
+.sl { font-family:var(--sm); font-size:.54rem; letter-spacing:.2em; text-transform:uppercase; color:var(--mute); }
 
-/* ═══════════════════════════════════════════════════════════════
-   WRITERS — full 3D tilt + mouse-tracked shimmer
-   Emil: enter=transition:none (instant), exit=400ms ease-out (asymmetric)
-═══════════════════════════════════════════════════════════════ */
-.writers-g { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; margin-top: 4rem; }
+/* ── WRITERS SCENE — horizontal scroll ── */
+.writers-scene {
+  position: relative; z-index: 2;
+  border-top: 1px solid var(--b0);
+}
+.writers-header {
+  padding: 6rem 3rem 4rem 4.5rem;
+}
+.writers-label { font-family:var(--sm); font-size:.56rem; letter-spacing:.42em; text-transform:uppercase; color:var(--gold); display:block; margin-bottom:1.5rem; }
+.writers-h { font-size: clamp(2.4rem, 4.5vw, 4.5rem); font-weight: 200; line-height: .96; }
+.writers-h em { font-style: italic; color: var(--gold); }
+
+/* Horizontal cards track */
+.writers-track-wrap {
+  overflow: hidden; position: relative;
+}
+.writers-track {
+  display: flex; gap: 2px;
+  padding: 0 3rem 5rem 4.5rem;
+}
 .wc {
-  background: var(--card); border: 1px solid var(--b0);
+  flex: 0 0 clamp(280px, 32vw, 420px);
+  background: rgba(9,9,15,.85); border: 1px solid var(--b0);
   padding: 3rem 2.5rem; position: relative; overflow: hidden;
   text-decoration: none; color: inherit; display: block;
+  backdrop-filter: blur(12px);
   transform-style: preserve-3d; will-change: transform;
   transition: border-color 300ms ease;
 }
-/* Shimmer tracks cursor */
-.wc::before {
+.wc::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(184,148,103,.07) 0%,transparent 50%); opacity:0; transition:opacity 300ms ease; z-index:0; }
+.wc-bar { position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); transform:scaleX(0); transform-origin:left; transition:transform 400ms var(--eo); }
+@media(hover:hover) and (pointer:fine) {
+  .wc:hover { border-color:rgba(184,148,103,.22); } .wc:hover::before { opacity:1; }
+  .wc:hover .wc-bar { transform:scaleX(1); } .wc:hover .wc-rule { width:36px; background:var(--gold); }
+  .wc:hover .wc-tags span { border-color:var(--b1); color:var(--goldh); } .wc:hover .wc-arr { color:var(--gold); transform:translate(6px,-6px); }
+}
+.wc>* { position:relative; z-index:1; }
+.wc-num { font-family:var(--sm); font-size:.52rem; letter-spacing:.3em; color:var(--b1); margin-bottom:2.5rem; display:block; }
+.wc-name { font-family:var(--sf); font-size:2.2rem; font-weight:200; line-height:.95; margin-bottom:.3rem; }
+.wc-name em { font-style:italic; color:var(--gold); display:block; }
+.wc-rule { width:17px; height:1px; background:var(--b1); margin:1.5rem 0; transition:width 360ms var(--eo),background 360ms ease; }
+.wc-bio { font-family:var(--sf); font-size:.92rem; font-weight:300; line-height:1.9; color:var(--body); margin-bottom:2rem; }
+.wc-tags { display:flex; flex-wrap:wrap; gap:.38rem; }
+.wc-tags span { font-family:var(--sm); font-size:.52rem; letter-spacing:.12em; text-transform:uppercase; color:var(--mute); border:1px solid var(--b0); padding:.22rem .58rem; transition:border-color 200ms ease,color 200ms ease; }
+.wc-arr { position:absolute; bottom:2.5rem; right:2.5rem; font-family:var(--sm); font-size:.62rem; color:var(--mute); transition:color 200ms ease,transform 300ms var(--spr); }
+
+/* ── FEATURED PROJECT — cinematic full-bleed ── */
+.project-scene {
+  position: relative; z-index: 2; min-height: 100vh;
+  display: flex; align-items: center;
+  border-top: 1px solid var(--b0);
+  overflow: hidden;
+}
+/* Background parallax image layer */
+.proj-bg {
+  position: absolute; inset: -20%;
+  background-color: #07070e; /* fallback */
+  /* background-image: url('images/sinfrancisco.jpg'); */
+  background-size: cover; background-position: center;
+  will-change: transform;
+  filter: brightness(.35) saturate(.6);
+}
+.proj-bg::after {
   content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(184,148,103,.072) 0%, transparent 50%);
-  opacity: 0; transition: opacity 300ms ease; z-index: 0;
+  background: linear-gradient(90deg, rgba(2,2,3,.95) 40%, rgba(2,2,3,.4) 100%);
 }
-/* Top gold wipe — 400ms ease-out (purposeful, not decorative) */
-.wc-bar {
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  transform: scaleX(0); transform-origin: left;
-  transition: transform 400ms var(--eo);
+.proj-inner {
+  position: relative; z-index: 1;
+  padding: 8rem 3rem 8rem 4.5rem;
+  max-width: 680px;
 }
-@media (hover: hover) and (pointer: fine) {
-  .wc:hover                { border-color: rgba(184,148,103,.2); }
-  .wc:hover::before        { opacity: 1; }
-  .wc:hover .wc-bar        { transform: scaleX(1); }
-  .wc:hover .wc-rule       { width: 36px; background: var(--gold); }
-  .wc:hover .wc-tags span  { border-color: var(--b1); color: var(--goldhv); }
-  /* Emil: spring curve on arrow (decorative, mouse-tracking) */
-  .wc:hover .wc-arr        { color: var(--gold); transform: translate(6px,-6px); }
-}
-.wc > * { position: relative; z-index: 1; }
-.wc-num  { font-family: var(--sm); font-size: .52rem; letter-spacing: .3em; color: var(--b1); margin-bottom: 2.5rem; display: block; }
-.wc-name { font-family: var(--sf); font-size: 2.2rem; font-weight: 200; line-height: .95; margin-bottom: .3rem; }
-.wc-name em { font-style: italic; color: var(--gold); display: block; }
-.wc-rule { width: 17px; height: 1px; background: var(--b1); margin: 1.5rem 0; transition: width 360ms var(--eo), background 360ms ease; }
-.wc-bio  { font-family: var(--sf); font-size: .92rem; font-weight: 300; line-height: 1.9; color: var(--body); margin-bottom: 2rem; }
-.wc-tags { display: flex; flex-wrap: wrap; gap: .38rem; }
-.wc-tags span { font-family: var(--sm); font-size: .52rem; letter-spacing: .12em; text-transform: uppercase; color: var(--mute); border: 1px solid var(--b0); padding: .22rem .58rem; transition: border-color 200ms ease, color 200ms ease; }
-.wc-arr  { position: absolute; bottom: 2.5rem; right: 2.5rem; font-family: var(--sm); font-size: .62rem; color: var(--mute); transition: color 200ms ease, transform 300ms var(--spr); }
+.proj-badge { font-family:var(--sm); font-size:.52rem; letter-spacing:.3em; text-transform:uppercase; color:var(--gold); border:1px solid rgba(184,148,103,.22); padding:.24rem .68rem; display:inline-block; margin-bottom:2rem; position:relative; overflow:hidden; }
+.proj-badge::before { content:''; position:absolute; inset:0; background:rgba(184,148,103,.06); animation:pb 4s ease-in-out infinite; }
+@keyframes pb { 0%,100%{opacity:0}50%{opacity:1} }
+.proj-label { font-family:var(--sm); font-size:.56rem; letter-spacing:.42em; text-transform:uppercase; color:var(--gold); display:block; margin-bottom:1.5rem; }
+.proj-title { font-family:var(--sf); font-size:clamp(3rem,8vw,8rem); font-weight:200; font-style:italic; color:var(--cream); line-height:.92; margin-bottom:1.5rem; text-shadow: 0 0 80px rgba(184,148,103,.2); }
+.proj-by { font-family:var(--sm); font-size:.54rem; letter-spacing:.2em; text-transform:uppercase; color:rgba(184,148,103,.6); margin-bottom:2rem; }
+.proj-tagline { font-family:var(--sf); font-size:1.1rem; font-style:italic; color:var(--gold); margin-bottom:1.5rem; line-height:1.5; }
+.proj-logline { font-family:var(--sf); font-size:1.05rem; font-weight:300; line-height:1.92; color:var(--body); margin-bottom:3rem; }
+.proj-genres { display:flex; gap:.36rem; flex-wrap:wrap; margin-bottom:2.5rem; }
+.proj-genre { font-family:var(--sm); font-size:.5rem; letter-spacing:.11em; text-transform:uppercase; color:var(--mute); border:1px solid var(--b1); padding:.2rem .52rem; }
+.proj-link { font-family:var(--sm); font-size:.58rem; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); text-decoration:none; display:inline-flex; align-items:center; gap:.5rem; position:relative; }
+.proj-link::after { content:''; position:absolute; bottom:-3px; left:0; right:0; height:1px; background:var(--gold); transform:scaleX(0); transform-origin:left; transition:transform 260ms var(--eo); }
+.proj-link:hover::after { transform:scaleX(1); }
 
-/* ═══════════════════════════════════════════════════════════════
-   FEATURED PROJECT — animated manuscript grid + vertical accent
-═══════════════════════════════════════════════════════════════ */
-.proj-f {
-  margin-top: 3.5rem; border: 1px solid var(--b0); background: var(--card);
-  position: relative; overflow: hidden;
-  transition: border-color 300ms ease;
-}
-/* Slow manuscript grid — atmospheric texture */
-.proj-f::before {
-  content: ''; position: absolute; inset: 0; pointer-events: none;
-  background-image:
-    linear-gradient(rgba(184,148,103,.013) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(184,148,103,.013) 1px, transparent 1px);
-  background-size: 50px 50px;
-  /* Emil: linear for constant motion */
-  animation: mgrid 30s linear infinite;
-}
-@keyframes mgrid { to { background-position: 50px 50px; } }
-/* Left vertical accent — scaleY from bottom (more dramatic than top) */
-.proj-f::after {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-  width: 2px; background: var(--gold);
-  transform: scaleY(0); transform-origin: bottom;
-  /* Emil: 520ms ease-out — deliberate, like drawing a line */
-  transition: transform 520ms var(--eo);
-}
-@media (hover: hover) and (pointer: fine) {
-  .proj-f:hover { border-color: rgba(184,148,103,.25); }
-  .proj-f:hover::after { transform: scaleY(1); }
-}
-.proj-layout { display: grid; grid-template-columns: 1fr 2.3fr; position: relative; z-index: 1; }
-.proj-left { padding: 4rem 3rem; border-right: 1px solid var(--b0); display: flex; flex-direction: column; justify-content: space-between; }
-.proj-badge {
-  font-family: var(--sm); font-size: .52rem; letter-spacing: .3em; text-transform: uppercase;
-  color: var(--gold); border: 1px solid rgba(184,148,103,.2); padding: .22rem .66rem; display: inline-block; margin-bottom: 1.5rem;
-  position: relative; overflow: hidden;
-}
-/* Badge background breathes — subtle life */
-.proj-badge::before { content: ''; position: absolute; inset: 0; background: rgba(184,148,103,.05); animation: pb 4.5s ease-in-out infinite; }
-@keyframes pb { 0%,100%{opacity:0} 50%{opacity:1} }
-.proj-title { font-family: var(--sf); font-size: 2.8rem; font-weight: 200; font-style: italic; color: var(--cream); line-height: .95; margin-bottom: 1rem; }
-.proj-by    { font-family: var(--sm); font-size: .53rem; letter-spacing: .2em; text-transform: uppercase; color: var(--mute); }
-.proj-link  {
-  font-family: var(--sm); font-size: .56rem; letter-spacing: .18em; text-transform: uppercase;
-  color: var(--gold); text-decoration: none; display: inline-flex; align-items: center; gap: .4rem; position: relative;
-}
-.proj-link::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 1px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 250ms var(--eo); }
-.proj-link:hover::after { transform: scaleX(1); }
-.proj-right { padding: 4rem 3.5rem; }
-.proj-genres { display: flex; gap: .36rem; flex-wrap: wrap; margin-bottom: 2rem; }
-.proj-genre { font-family: var(--sm); font-size: .5rem; letter-spacing: .11em; text-transform: uppercase; color: var(--mute); border: 1px solid var(--b0); padding: .2rem .52rem; }
-.proj-tagline { font-family: var(--sf); font-size: 1.05rem; font-style: italic; color: var(--gold); margin-bottom: 1.3rem; line-height: 1.5; }
-.proj-logline { font-family: var(--sf); font-size: 1.04rem; font-weight: 300; line-height: 1.93; color: var(--body); margin-bottom: 2rem; }
+/* Project row items */
+.proj-rows { border-top:1px solid var(--b0); }
+.proj-row { background:var(--card); border-bottom:1px solid var(--b0); display:grid; grid-template-columns:80px 1fr auto auto; align-items:center; text-decoration:none; color:inherit; position:relative; overflow:hidden; transition:background 200ms ease; }
+.proj-row::before { content:''; position:absolute; left:0; top:0; bottom:0; width:2px; background:var(--gold); transform:scaleY(0); transform-origin:bottom; transition:transform 260ms var(--eo); }
+@media(hover:hover) and (pointer:fine) { .proj-row:hover { background:#0c0c14; } .proj-row:hover::before { transform:scaleY(1); } .proj-row:hover .pr-arr { color:var(--gold); transform:translateX(6px); } }
+.pr-n { font-family:var(--sm); font-size:.52rem; color:var(--b1); padding:2rem 1.5rem; border-right:1px solid var(--b0); align-self:stretch; display:flex; align-items:center; justify-content:center; }
+.pr-i { padding:2rem; }
+.pr-t { font-family:var(--sf); font-size:1.4rem; font-weight:200; }
+.pr-b { font-family:var(--sm); font-size:.51rem; letter-spacing:.13em; text-transform:uppercase; color:var(--gold); }
+.pr-bdg { font-family:var(--sm); font-size:.51rem; letter-spacing:.13em; text-transform:uppercase; color:var(--gold); border:1px solid rgba(184,148,103,.22); padding:.2rem .6rem; margin:0 2rem; }
+.pr-arr { font-family:var(--sm); font-size:.62rem; color:var(--mute); padding:0 2rem; transition:color 200ms ease,transform 260ms var(--spr); }
 
-/* Smaller project rows with vertical accent */
-.proj-rows { margin-top: 2px; }
-.proj-row {
-  background: var(--card); border: 1px solid var(--b0); margin-bottom: 2px;
-  display: grid; grid-template-columns: 78px 1fr auto auto;
-  align-items: center; text-decoration: none; color: inherit;
-  position: relative; overflow: hidden;
-  transition: border-color 200ms ease, background 200ms ease;
+/* ── SERVICES ── */
+.services-scene {
+  position: relative; z-index: 2; padding: 10rem 3rem 10rem 4.5rem;
+  border-top: 1px solid var(--b0);
 }
-.proj-row::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-  width: 2px; background: var(--gold);
-  transform: scaleY(0); transform-origin: bottom;
-  transition: transform 260ms var(--eo);
-}
-@media (hover: hover) and (pointer: fine) {
-  .proj-row:hover { border-color: var(--b1); background: #0c0c13; }
-  .proj-row:hover::before { transform: scaleY(1); }
-  .proj-row:hover .pr-arr { color: var(--gold); transform: translateX(5px); }
-}
-.pr-n   { font-family: var(--sm); font-size: .52rem; color: var(--b1); padding: 2rem 1.5rem; border-right: 1px solid var(--b0); align-self: stretch; display: flex; align-items: center; justify-content: center; }
-.pr-i   { padding: 2rem; }
-.pr-t   { font-family: var(--sf); font-size: 1.4rem; font-weight: 200; }
-.pr-b   { font-family: var(--sm); font-size: .51rem; letter-spacing: .13em; text-transform: uppercase; color: var(--gold); }
-.pr-bdg { font-family: var(--sm); font-size: .51rem; letter-spacing: .13em; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(184,148,103,.22); padding: .2rem .6rem; margin: 0 2rem; }
-.pr-arr { font-family: var(--sm); font-size: .62rem; color: var(--mute); padding: 0 2rem; transition: color 200ms ease, transform 260ms var(--spr); }
+.svc-label { font-family:var(--sm); font-size:.56rem; letter-spacing:.42em; text-transform:uppercase; color:var(--gold); display:block; margin-bottom:1.5rem; }
+.svc-h { font-size:clamp(2.4rem,4.5vw,4.5rem); font-weight:200; line-height:.96; margin-bottom:4rem; }
+.svc-h em { font-style:italic; color:var(--gold); }
+.svc-g { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+.svc { background:var(--card); border:1px solid var(--b0); padding:2.5rem; position:relative; overflow:hidden; transition:border-color 250ms ease; cursor:default; }
+.svc::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 100%,rgba(184,148,103,.055) 0%,transparent 64%); opacity:0; transition:opacity 300ms ease; }
+.svc::after { content:''; position:absolute; bottom:0; left:0; right:0; height:1px; background:linear-gradient(90deg,var(--gold),transparent); transform:scaleX(0); transform-origin:left; transition:transform 360ms var(--eo); }
+@media(hover:hover) and (pointer:fine) { .svc:hover { border-color:var(--b1); } .svc:hover::before { opacity:1; } .svc:hover::after { transform:scaleX(1); } }
+.svc-i { font-family:var(--sf); font-size:2.3rem; font-weight:200; font-style:italic; color:rgba(184,148,103,.14); margin-bottom:1.5rem; line-height:1; }
+.svc-n { font-family:var(--sf); font-size:1.03rem; font-weight:300; margin-bottom:.86rem; color:var(--cream); }
+.svc-d { font-family:var(--sf); font-size:.91rem; font-weight:300; line-height:1.9; color:var(--body); }
 
-/* ═══════════════════════════════════════════════════════════════
-   SERVICES
-═══════════════════════════════════════════════════════════════ */
-.svc-g { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; margin-top: 4rem; }
-.svc {
-  background: var(--card); border: 1px solid var(--b0); padding: 2.5rem;
-  position: relative; overflow: hidden; transition: border-color 250ms ease; cursor: default;
+/* ── CONTACT ── */
+.contact-scene {
+  position: relative; z-index: 2; padding: 10rem 3rem 10rem 4.5rem;
+  border-top: 1px solid var(--b0);
 }
-.svc::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 100%, rgba(184,148,103,.05) 0%, transparent 64%); opacity: 0; transition: opacity 300ms ease; }
-.svc::after  { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, var(--gold), transparent); transform: scaleX(0); transform-origin: left; transition: transform 360ms var(--eo); }
-@media (hover: hover) and (pointer: fine) {
-  .svc:hover { border-color: var(--b1); }
-  .svc:hover::before { opacity: 1; }
-  .svc:hover::after  { transform: scaleX(1); }
-}
-.svc-i { font-family: var(--sf); font-size: 2.3rem; font-weight: 200; font-style: italic; color: rgba(184,148,103,.14); margin-bottom: 1.5rem; line-height: 1; }
-.svc-n { font-family: var(--sf); font-size: 1.03rem; font-weight: 300; margin-bottom: .86rem; color: var(--cream); }
-.svc-d { font-family: var(--sf); font-size: .91rem; font-weight: 300; line-height: 1.9; color: var(--body); }
+.ct-label { font-family:var(--sm); font-size:.56rem; letter-spacing:.42em; text-transform:uppercase; color:var(--gold); display:block; margin-bottom:1.5rem; }
+.ct-h { font-size:clamp(2.4rem,4.5vw,4.5rem); font-weight:200; line-height:.96; margin-bottom:4rem; }
+.ct-h em { font-style:italic; color:var(--gold); }
+.ct-g { display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:start; }
+.ct-t { font-family:var(--sf); font-size:1.04rem; font-weight:300; line-height:1.92; color:var(--body); margin-bottom:3rem; }
+.ct-d { margin-bottom:1.5rem; }
+.ct-dl { font-family:var(--sm); font-size:.52rem; letter-spacing:.28em; text-transform:uppercase; color:var(--gold); margin-bottom:.3rem; }
+.ct-dv { font-family:var(--sf); font-size:1rem; color:var(--cream); }
+.ct-f { display:flex; flex-direction:column; gap:1.3rem; }
+.fg { display:flex; flex-direction:column; gap:.38rem; }
+.fl { font-family:var(--sm); font-size:.52rem; letter-spacing:.22em; text-transform:uppercase; color:var(--body); }
+.fi,.fta,.fsl { background:rgba(9,9,15,.8); border:1px solid var(--b0); color:var(--cream); font-family:var(--sf); font-size:.94rem; padding:.82rem .96rem; outline:none; width:100%; appearance:none; transition:border-color 200ms ease,box-shadow 200ms ease; }
+.fi:focus,.fta:focus,.fsl:focus { border-color:rgba(184,148,103,.46); box-shadow:0 0 0 3px rgba(184,148,103,.055); }
+.fta { resize:vertical; min-height:122px; }
+.fsl option { background:var(--card); }
+.fsb { font-family:var(--sm); font-size:.58rem; letter-spacing:.22em; text-transform:uppercase; color:var(--ink); background:var(--gold); border:none; padding:.94rem 2.2rem; cursor:none; align-self:flex-start; transition:background 200ms ease,transform 100ms ease; }
+.fsb:hover { background:var(--goldh); } .fsb:active { transform:scale(.97); }
+.f-ok { display:none; font-family:var(--sf); font-size:.95rem; font-style:italic; color:var(--gold); padding:1.2rem; border:1px solid rgba(184,148,103,.28); margin-top:1rem; }
+.f-ok.on { display:block; }
 
-/* ═══════════════════════════════════════════════════════════════
-   CONTACT
-═══════════════════════════════════════════════════════════════ */
-.ct-g  { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; margin-top: 4rem; align-items: start; }
-.ct-t  { font-family: var(--sf); font-size: 1.04rem; font-weight: 300; line-height: 1.92; color: var(--body); margin-bottom: 3rem; }
-.ct-d  { margin-bottom: 1.5rem; }
-.ct-dl { font-family: var(--sm); font-size: .52rem; letter-spacing: .28em; text-transform: uppercase; color: var(--gold); margin-bottom: .3rem; }
-.ct-dv { font-family: var(--sf); font-size: 1rem; color: var(--cream); }
-.ct-f  { display: flex; flex-direction: column; gap: 1.3rem; }
-.fg    { display: flex; flex-direction: column; gap: .38rem; }
-.fl    { font-family: var(--sm); font-size: .52rem; letter-spacing: .22em; text-transform: uppercase; color: var(--body); }
-.fi,.fta,.fsl {
-  background: var(--card); border: 1px solid var(--b0);
-  color: var(--cream); font-family: var(--sf); font-size: .94rem;
-  padding: .82rem .96rem; outline: none; width: 100%; appearance: none;
-  transition: border-color 200ms ease, box-shadow 200ms ease;
-}
-.fi:focus,.fta:focus,.fsl:focus {
-  border-color: rgba(184,148,103,.46);
-  box-shadow: 0 0 0 3px rgba(184,148,103,.05);
-}
-.fta { resize: vertical; min-height: 122px; }
-.fsl option { background: var(--deep); }
-.fsb {
-  font-family: var(--sm); font-size: .58rem; letter-spacing: .22em; text-transform: uppercase;
-  color: var(--ink); background: var(--gold); border: none;
-  padding: .94rem 2.2rem; cursor: none; align-self: flex-start;
-  transition: background 200ms ease, transform 100ms ease;
-}
-.fsb:hover  { background: var(--goldhv); }
-.fsb:active { transform: scale(.97); transition: transform 100ms ease; }
-.f-ok { display: none; font-family: var(--sf); font-size: .95rem; font-style: italic; color: var(--gold); padding: 1.2rem; border: 1px solid rgba(184,148,103,.28); margin-top: 1rem; }
-.f-ok.on { display: block; }
+/* MARQUEE */
+.mq { position:relative; z-index:2; overflow:hidden; border-top:1px solid var(--b0); border-bottom:1px solid var(--b0); background:var(--ink); }
+.mq-t { display:flex; white-space:nowrap; animation:mq 30s linear infinite; }
+.mq-t:hover { animation-play-state:paused; }
+.mq-t span { font-family:var(--sm); font-size:.5rem; letter-spacing:.36em; text-transform:uppercase; color:var(--mute); padding:.75rem 2rem; border-right:1px solid var(--b0); flex-shrink:0; transition:color 200ms ease; }
+.mq-t span:hover { color:rgba(184,148,103,.5); }
+.mq-t em { color:rgba(184,148,103,.38); font-style:normal; margin:0 .5rem; }
+@keyframes mq { from{transform:translateX(0)}to{transform:translateX(-50%)} }
 
-/* ═══════════════════════════════════════════════════════════════
-   FOOTER
-═══════════════════════════════════════════════════════════════ */
-footer { border-top: 1px solid var(--b0); padding: 2.5rem 3rem; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; background: var(--ink); }
-.f-logo { font-family: var(--sf); font-size: 1.1rem; font-weight: 200; letter-spacing: .36em; text-transform: uppercase; color: var(--mute); text-decoration: none; }
-.f-logo em { color: var(--gold); font-style: italic; }
-.f-copy { font-family: var(--sm); font-size: .52rem; letter-spacing: .18em; color: var(--b1); text-transform: uppercase; }
+/* FOOTER */
+footer { border-top:1px solid var(--b0); padding:2.5rem 3rem; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:2; background:var(--ink); }
+.f-logo { font-family:var(--sf); font-size:1.1rem; font-weight:200; letter-spacing:.36em; text-transform:uppercase; color:var(--mute); text-decoration:none; }
+.f-logo em { color:var(--gold); font-style:italic; }
+.f-copy { font-family:var(--sm); font-size:.52rem; letter-spacing:.18em; color:var(--b1); text-transform:uppercase; }
 
-/* Parallax */
-.par { will-change: transform; }
-
-/* ═══════════════════════════════════════════════════════════════
-   REDUCED MOTION
-   Emil: keep opacity, remove position/transform motion
-═══════════════════════════════════════════════════════════════ */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
-  .gh-1, .gh-2, .h-glow, .scanline { display: none; }
+/* IMAGE PLACEHOLDER HINT */
+.img-hint {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 1rem;
+  z-index: 1; pointer-events: none;
 }
+.img-hint-text { font-family:var(--sm); font-size:.58rem; letter-spacing:.28em; text-transform:uppercase; color:rgba(184,148,103,.3); text-align:center; }
+.img-hint-icon { font-family:var(--sf); font-size:3rem; color:rgba(184,148,103,.15); font-style:italic; }
 
-/* ═══════════════════════════════════════════════════════════════
-   MOBILE
-═══════════════════════════════════════════════════════════════ */
-@media (max-width: 768px) {
-  nav { padding: 1.2rem 1.5rem; } .n-links { display: none; }
-  body { cursor: auto; } #cd, #cr { display: none; }
-  .hero { grid-template-columns: 1fr; } .hero-sb { display: none; }
-  .hero-main { padding: 5rem 1.5rem 3rem; }
-  .h-title { font-size: clamp(2.8rem, 14vw, 6rem); }
-  .h-ctas { flex-direction: column; align-items: flex-start; }
-  .h-bar { padding: 1.3rem 1.5rem; flex-direction: column; gap: .7rem; text-align: center; }
-  .mq-strip { display: none; }
-  .pad { padding: 6rem 1.5rem 6rem 1.5rem; } .s-no { display: none; }
-  .about-g { grid-template-columns: 1fr; gap: 4rem; }
-  .writers-g, .svc-g { grid-template-columns: 1fr; }
-  .proj-layout { grid-template-columns: 1fr; }
-  .proj-left { border-right: none; border-bottom: 1px solid var(--b0); }
-  .proj-row { grid-template-columns: 48px 1fr 55px; } .pr-bdg { display: none; }
-  .ct-g { grid-template-columns: 1fr; gap: 3rem; }
-  footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem 1.5rem; }
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; }
+}
+@media(max-width:768px) {
+  nav { padding:1.2rem 1.5rem; } .n-links { display:none; }
+  body { cursor:auto; } #cd,#cr { display:none; }
+  .hero-title { font-size:clamp(3rem,14vw,6rem); }
+  .about-inner { grid-template-columns:1fr; gap:4rem; padding:0 1.5rem; }
+  .writers-track { padding:0 1.5rem 4rem; }
+  .proj-inner { padding:6rem 1.5rem; }
+  .svc-g { grid-template-columns:1fr; }
+  .services-scene,.contact-scene { padding:6rem 1.5rem; }
+  .ct-g { grid-template-columns:1fr; gap:3rem; }
+  .proj-row { grid-template-columns:48px 1fr 55px; } .pr-bdg { display:none; }
+  footer { flex-direction:column; gap:1rem; text-align:center; padding:2rem 1.5rem; }
 }
 </style>
 </head>
@@ -625,8 +358,7 @@ footer { border-top: 1px solid var(--b0); padding: 2.5rem 3rem; display: flex; j
 <div id="cr"></div>
 <canvas id="bg"></canvas>
 
-<!-- NAV -->
-<nav>
+<nav id="main-nav">
   <a href="#" class="n-logo">Ma<em>s</em>elia</a>
   <ul class="n-links">
     <li><a href="#about">About</a></li>
@@ -637,194 +369,176 @@ footer { border-top: 1px solid var(--b0); padding: 2.5rem 3rem; display: flex; j
   </ul>
 </nav>
 
-<!-- MARQUEE — literary context strip. Hover pauses it. -->
-<div class="mq-strip" aria-hidden="true">
-  <div class="mq-track">
-    <span>Screenwriting<em>·</em>Script Editing<em>·</em>Proofreading<em>·</em>Script Analysis<em>·</em>Development<em>·</em>Collaboration</span>
-    <span>Michael Cotter<em>·</em>Chris Gibson<em>·</em>Bobby Bea<em>·</em>Maselia Collective</span>
-    <span>Sin Francisco<em>·</em>Providence<em>·</em>Until the Sun Sets<em>·</em>Samodiva</span>
-    <span>Screenwriting<em>·</em>Script Editing<em>·</em>Proofreading<em>·</em>Script Analysis<em>·</em>Development<em>·</em>Collaboration</span>
-    <span>Michael Cotter<em>·</em>Chris Gibson<em>·</em>Bobby Bea<em>·</em>Maselia Collective</span>
-    <span>Sin Francisco<em>·</em>Providence<em>·</em>Until the Sun Sets<em>·</em>Samodiva</span>
-  </div>
-</div>
-
-<!-- ═══════════════ HERO ═══════════════════════════════════════ -->
+<!-- ═══ HERO ════════════════════════════════════════════ -->
 <section class="hero" id="home">
+  <div class="hero-bg-img" id="hero-img">
+    <!-- ADD YOUR IMAGE: set background-image in CSS or inline style -->
+    <!-- e.g. style="background-image:url('images/hero.jpg')" -->
+    <div class="img-hint">
+      <div class="img-hint-icon">Maselia</div>
+      <div class="img-hint-text">Add hero image →<br>images/hero.jpg</div>
+    </div>
+  </div>
+  <div class="hero-img"></div>
+  <div class="hero-grain"></div>
+  <div class="hero-vignette"></div>
+  <div class="scanline"></div>
 
-  <!-- Screenplay sidebar -->
-  <div class="hero-sb">
-    <div class="sb-act">Act One</div>
-    <div class="sb-wire"></div>
-    <div class="sb-n">001</div>
+  <div class="hero-content">
+    <span class="hero-pre" id="hero-pre">Maselia — Screenwriters Collective</span>
+    <h1 class="hero-title">
+      <span class="tl"><span class="tw" id="tw1">Words.</span></span>
+      <span class="tl"><span class="tw" id="tw2">Worlds.</span></span>
+      <span class="tl"><span class="tw" id="tw3"><em>Story.</em></span></span>
+    </h1>
+    <p class="hero-tagline" id="hero-tag">Three writers. One voice when it counts.<br>Stories built to last, scripts built to sell.</p>
   </div>
 
-  <div class="hero-main">
-    <div class="h-glow"></div>
-    <div class="scanline"></div>
-    <div class="gh-1 par" data-s=".22">Story</div>
-    <div class="gh-2 par" data-s=".1">Words</div>
-    <div class="gh-3">Chapter I</div>
-
-    <div class="hero-body">
-      <div class="h-eye" id="h-eye">Maselia — Screenwriters Collective</div>
-      <h1 class="h-title">
-        <span class="tl"><span class="tw">Words.</span></span>
-        <span class="tl"><span class="tw">Worlds.</span></span>
-        <span class="tl"><span class="tw"><em>Story.</em></span></span>
-      </h1>
-      <div class="h-rule"></div>
-      <p class="h-sub">Three writers. One voice when it counts.<br>Stories built to last, scripts built to sell.</p>
-      <div class="h-ctas">
-        <a href="#about"              class="hb">About</a>
-        <a href="#writers"            class="hb">Meet the Writers</a>
-        <a href="joint-projects.html" class="hb">Joint Projects</a>
-        <a href="#services"           class="hb">Services</a>
-        <a href="contact.html"        class="hb">Contact</a>
-      </div>
-    </div>
+  <div class="hero-scroll-hint" id="scroll-hint">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
   </div>
 </section>
 
-<!-- Hero status bar -->
-<div class="h-bar">
-  <div class="h-names">Michael Cotter<em>·</em>Chris Gibson<em>·</em>Bobby Bea</div>
-  <div class="h-scroll">Scroll to explore</div>
+<!-- ═══ MARQUEE ══════════════════════════════════════════ -->
+<div class="mq">
+  <div class="mq-t">
+    <span>Screenwriting<em>·</em>Script Editing<em>·</em>Proofreading<em>·</em>Script Analysis<em>·</em>Development<em>·</em>Collaboration</span>
+    <span>Michael Cotter<em>·</em>Chris Gibson<em>·</em>Bobby Bea<em>·</em>Maselia Collective</span>
+    <span>Sin Francisco<em>·</em>Providence<em>·</em>Until the Sun Sets<em>·</em>Samodiva</span>
+    <span>Screenwriting<em>·</em>Script Editing<em>·</em>Proofreading<em>·</em>Script Analysis<em>·</em>Development<em>·</em>Collaboration</span>
+    <span>Michael Cotter<em>·</em>Chris Gibson<em>·</em>Bobby Bea<em>·</em>Maselia Collective</span>
+    <span>Sin Francisco<em>·</em>Providence<em>·</em>Until the Sun Sets<em>·</em>Samodiva</span>
+  </div>
 </div>
 
-<!-- ═══════════════ ABOUT ════════════════════════════════════ -->
-<section class="pad" id="about">
-  <div class="s-no"><div class="s-no-l"></div><div class="s-no-t">001</div></div>
-  <span class="s-label rv">// About</span>
-  <h2 class="s-h2 rv" data-d=".07">We write worlds<br>others <em>inhabit.</em></h2>
-  <div class="about-g">
-    <div class="rv-l" data-d=".12">
+<!-- ═══ ABOUT ════════════════════════════════════════════ -->
+<section class="about-scene" id="about">
+  <div class="bg-word" aria-hidden="true">Story</div>
+  <div class="about-inner">
+    <div class="about-left">
+      <span class="about-label">// 001 — About</span>
+      <h2 class="about-h">We write worlds<br>others <em>inhabit.</em></h2>
       <p class="about-p">Maselia is a collective of three working screenwriters united by a shared conviction: that <strong>great stories demand rigour, craft, and a willingness to go where it's uncomfortable.</strong></p>
-      <p class="about-p">We work independently on our own projects and together on joint endeavours — bringing the full weight of three perspectives to bear on material that deserves more than one pair of eyes.</p>
       <p class="about-p">Available for commissions, collaborations, and professional script services across all stages of development.</p>
     </div>
-    <div class="stat-g stg" data-d=".14">
-      <div class="sbox" data-mag><div class="sn">3</div><div class="sl">Working Writers</div></div>
-      <div class="sbox" data-mag><div class="sn">∞</div><div class="sl">Stories to Tell</div></div>
-      <div class="sbox" data-mag><div class="sn">3</div><div class="sl">Joint Projects</div></div>
-      <div class="sbox" data-mag><div class="sn">6+</div><div class="sl">Services Offered</div></div>
+    <div class="about-right">
+      <div class="sbox"><div class="sn">3</div><div class="sl">Working Writers</div></div>
+      <div class="sbox"><div class="sn">∞</div><div class="sl">Stories to Tell</div></div>
+      <div class="sbox"><div class="sn">3</div><div class="sl">Joint Projects</div></div>
+      <div class="sbox"><div class="sn">6+</div><div class="sl">Services Offered</div></div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════ WRITERS ══════════════════════════════════ -->
-<section class="pad" id="writers" style="overflow:visible;position:relative">
-  <div class="s-no"><div class="s-no-l"></div><div class="s-no-t">002</div></div>
-  <div class="par" style="position:absolute;top:-3%;left:-1%;font-family:var(--sf);font-size:20vw;font-weight:200;font-style:italic;color:transparent;-webkit-text-stroke:1px rgba(184,148,103,.034);pointer-events:none;user-select:none;white-space:nowrap;will-change:transform;z-index:0" data-s=".14">Writers</div>
-  <span class="s-label rv">// The Writers</span>
-  <h2 class="s-h2 rv" data-d=".07">Three voices.<br><em>One collective.</em></h2>
-  <div class="writers-g">
-    <a href="michael-cotter.html" class="wc rv" data-d=".04" data-tilt>
-      <div class="wc-bar"></div>
-      <div class="wc-num">— 01</div>
-      <div class="wc-name">Michael<em>Cotter</em></div>
-      <div class="wc-rule"></div>
-      <p class="wc-bio">Award-recognised screenwriter whose science-sharpened storytelling spans heartfelt animation, speculative adventure, dark comedy, and emotionally charged drama.</p>
-      <div class="wc-tags"><span>Screenwriter</span><span>Content Creator</span></div>
-      <div class="wc-arr">↗</div>
-    </a>
-    <a href="chris-gibson.html" class="wc rv" data-d=".1" data-tilt>
-      <div class="wc-bar"></div>
-      <div class="wc-num">— 02</div>
-      <div class="wc-name">Chris<em>Gibson</em></div>
-      <div class="wc-rule"></div>
-      <p class="wc-bio">Two decades of poetry and fiction distilled into screenwriting — propulsive narratives underpinned by character work that earns every twist it takes.</p>
-      <div class="wc-tags"><span>Screenwriter</span><span>Poet</span></div>
-      <div class="wc-arr">↗</div>
-    </a>
-    <a href="bobby-bea.html" class="wc rv" data-d=".16" data-tilt>
-      <div class="wc-bar"></div>
-      <div class="wc-num">— 03</div>
-      <div class="wc-name">Bobby<em>Bea</em></div>
-      <div class="wc-rule"></div>
-      <p class="wc-bio">Emotionally driven narratives rooted in mythology, identity, and belonging — stories that feel both deeply personal and quietly inevitable.</p>
-      <div class="wc-tags"><span>Screenwriter</span><span>Casting Director</span></div>
-      <div class="wc-arr">↗</div>
-    </a>
+<!-- ═══ WRITERS ══════════════════════════════════════════ -->
+<section class="writers-scene" id="writers">
+  <div class="writers-header">
+    <span class="writers-label">// 002 — The Writers</span>
+    <h2 class="writers-h">Three voices.<br><em>One collective.</em></h2>
   </div>
-</section>
-
-<!-- ═══════════════ PROJECTS ═════════════════════════════════ -->
-<section class="pad" id="projects">
-  <div class="s-no"><div class="s-no-l"></div><div class="s-no-t">003</div></div>
-  <span class="s-label rv">// Joint Projects</span>
-  <h2 class="s-h2 rv" data-d=".07">Where three minds<br>become <em>one story.</em></h2>
-
-  <div class="proj-f rv" data-d=".1">
-    <div class="proj-layout">
-      <div class="proj-left">
-        <div>
-          <span class="proj-badge">In Development</span>
-          <div class="proj-title">Sin Francisco</div>
-          <div class="proj-by">Gibson · Cotter</div>
-        </div>
-        <a href="joint-projects.html" class="proj-link">View all projects →</a>
-      </div>
-      <div class="proj-right">
-        <div class="proj-genres">
-          <span class="proj-genre">Action</span><span class="proj-genre">Dark Comedy</span>
-          <span class="proj-genre">Historical</span><span class="proj-genre">Western</span>
-          <span class="proj-genre">Feature</span>
-        </div>
-        <p class="proj-tagline">Before the West was won, it was paid for in silence.</p>
-        <p class="proj-logline">A tale of three interwoven stories rooted in gold, opium and blood — where a corrupt Mayor, an Irish fixer and a desperate orphan are bound for the same violent end.</p>
-        <a href="joint-projects.html" class="proj-link">Explore the project →</a>
-      </div>
+  <div class="writers-track-wrap">
+    <div class="writers-track" id="writers-track">
+      <a href="michael-cotter.html" class="wc" data-tilt>
+        <div class="wc-bar"></div>
+        <div class="wc-num">— 01</div>
+        <div class="wc-name">Michael<em>Cotter</em></div>
+        <div class="wc-rule"></div>
+        <p class="wc-bio">Award-recognised screenwriter whose science-sharpened storytelling spans animation, speculative adventure, dark comedy, and emotionally charged drama.</p>
+        <div class="wc-tags"><span>Screenwriter</span><span>Content Creator</span></div>
+        <div class="wc-arr">↗</div>
+      </a>
+      <a href="chris-gibson.html" class="wc" data-tilt>
+        <div class="wc-bar"></div>
+        <div class="wc-num">— 02</div>
+        <div class="wc-name">Chris<em>Gibson</em></div>
+        <div class="wc-rule"></div>
+        <p class="wc-bio">Two decades of poetry and fiction distilled into screenwriting — propulsive narratives underpinned by character work that earns every twist it takes.</p>
+        <div class="wc-tags"><span>Screenwriter</span><span>Poet</span></div>
+        <div class="wc-arr">↗</div>
+      </a>
+      <a href="bobby-bea.html" class="wc" data-tilt>
+        <div class="wc-bar"></div>
+        <div class="wc-num">— 03</div>
+        <div class="wc-name">Bobby<em>Bea</em></div>
+        <div class="wc-rule"></div>
+        <p class="wc-bio">Emotionally driven narratives rooted in mythology, identity, and belonging — stories that feel both deeply personal and quietly inevitable.</p>
+        <div class="wc-tags"><span>Screenwriter</span><span>Casting Director</span></div>
+        <div class="wc-arr">↗</div>
+      </a>
     </div>
   </div>
+</section>
 
-  <div class="proj-rows">
-    <a href="joint-projects.html" class="proj-row rv" data-d=".06">
-      <div class="pr-n">02</div>
-      <div class="pr-i"><div class="pr-t">Providence</div><div class="pr-b">Gibson · Cotter</div></div>
-      <span class="pr-bdg">TV Pilot</span><span class="pr-arr">→</span>
-    </a>
-    <a href="joint-projects.html" class="proj-row rv" data-d=".1">
-      <div class="pr-n">03</div>
-      <div class="pr-i"><div class="pr-t">Until the Sun Sets</div><div class="pr-b">Bea · Cotter</div></div>
-      <span class="pr-bdg">Short</span><span class="pr-arr">→</span>
-    </a>
+<!-- ═══ FEATURED PROJECT ════════════════════════════════ -->
+<section class="project-scene" id="projects">
+  <!-- Add project background image: -->
+  <!-- <div class="proj-bg" style="background-image:url('images/sinfrancisco.jpg')"></div> -->
+  <div class="proj-bg" id="proj-bg">
+    <div class="img-hint" style="filter:invert(0)">
+      <div class="img-hint-text" style="color:rgba(255,255,255,.15)">Add project image →<br>images/sinfrancisco.jpg</div>
+    </div>
+  </div>
+  <div class="proj-inner">
+    <span class="proj-badge">In Development</span>
+    <span class="proj-label">// 003 — Joint Projects</span>
+    <h2 class="proj-title">Sin<br>Francisco</h2>
+    <div class="proj-by">Gibson · Cotter</div>
+    <div class="proj-genres">
+      <span class="proj-genre">Action</span><span class="proj-genre">Dark Comedy</span>
+      <span class="proj-genre">Historical</span><span class="proj-genre">Western</span>
+      <span class="proj-genre">Feature</span>
+    </div>
+    <p class="proj-tagline">Before the West was won, it was paid for in silence.</p>
+    <p class="proj-logline">A tale of three interwoven stories rooted in gold, opium and blood — where a corrupt Mayor, an Irish fixer and a desperate orphan are bound for the same violent end.</p>
+    <a href="joint-projects.html" class="proj-link">View all joint projects →</a>
   </div>
 </section>
 
-<!-- ═══════════════ SERVICES ═════════════════════════════════ -->
-<section class="pad" id="services">
-  <div class="s-no"><div class="s-no-l"></div><div class="s-no-t">004</div></div>
-  <span class="s-label rv">// Services</span>
-  <h2 class="s-h2 rv" data-d=".07">What we<br><em>offer.</em></h2>
-  <div class="svc-g stg" data-d=".1">
-    <div class="svc"><div class="svc-i">I.</div><div class="svc-n">Screenwriting</div><p class="svc-d">Original scripts developed from concept to completion. Feature, pilot, short — across formats with the same commitment to craft.</p></div>
-    <div class="svc"><div class="svc-i">II.</div><div class="svc-n">Script Editing</div><p class="svc-d">Structural and line-level editing for scripts at any stage. We find what isn't working and tell you plainly — then help you fix it.</p></div>
+<div class="proj-rows">
+  <a href="joint-projects.html" class="proj-row">
+    <div class="pr-n">02</div>
+    <div class="pr-i"><div class="pr-t">Providence</div><div class="pr-b">Gibson · Cotter</div></div>
+    <span class="pr-bdg">TV Pilot</span><span class="pr-arr">→</span>
+  </a>
+  <a href="joint-projects.html" class="proj-row">
+    <div class="pr-n">03</div>
+    <div class="pr-i"><div class="pr-t">Until the Sun Sets</div><div class="pr-b">Bea · Cotter</div></div>
+    <span class="pr-bdg">Short</span><span class="pr-arr">→</span>
+  </a>
+</div>
+
+<!-- ═══ SERVICES ═════════════════════════════════════════ -->
+<section class="services-scene" id="services">
+  <span class="svc-label">// 004 — Services</span>
+  <h2 class="svc-h">What we<br><em>offer.</em></h2>
+  <div class="svc-g">
+    <div class="svc"><div class="svc-i">I.</div><div class="svc-n">Screenwriting</div><p class="svc-d">Original scripts from concept to completion. Feature, pilot, short — across formats with the same commitment to craft.</p></div>
+    <div class="svc"><div class="svc-i">II.</div><div class="svc-n">Script Editing</div><p class="svc-d">Structural and line-level editing at any stage. We find what isn't working and tell you plainly — then help you fix it.</p></div>
     <div class="svc"><div class="svc-i">III.</div><div class="svc-n">Proofreading</div><p class="svc-d">Meticulous proofreading in correct screenplay format. Industry-standard presentation, every time.</p></div>
-    <div class="svc"><div class="svc-i">IV.</div><div class="svc-n">Script Analysis</div><p class="svc-d">Detailed coverage and reports. Honest assessments that give writers actionable insight, not empty encouragement.</p></div>
-    <div class="svc"><div class="svc-i">V.</div><div class="svc-n">Development</div><p class="svc-d">Story development and consultation at the idea or outline stage. We help shape material before a word of script is written.</p></div>
-    <div class="svc"><div class="svc-i">VI.</div><div class="svc-n">Collaboration</div><p class="svc-d">Open to co-writing engagements and creative partnerships on the right projects. Bring us your world — we'll help you build it.</p></div>
+    <div class="svc"><div class="svc-i">IV.</div><div class="svc-n">Script Analysis</div><p class="svc-d">Detailed coverage and reports. Honest assessments that give writers actionable insight.</p></div>
+    <div class="svc"><div class="svc-i">V.</div><div class="svc-n">Development</div><p class="svc-d">Story development and consultation at the idea stage. We help shape material before a word of script is written.</p></div>
+    <div class="svc"><div class="svc-i">VI.</div><div class="svc-n">Collaboration</div><p class="svc-d">Open to co-writing engagements on the right projects. Bring us your world — we'll help you build it.</p></div>
   </div>
 </section>
 
-<!-- ═══════════════ CONTACT ═══════════════════════════════════ -->
-<section class="pad" id="contact">
-  <div class="s-no"><div class="s-no-l"></div><div class="s-no-t">005</div></div>
-  <span class="s-label rv">// Contact</span>
-  <h2 class="s-h2 rv" data-d=".07">Let's make<br>something <em>worth watching.</em></h2>
+<!-- ═══ CONTACT ══════════════════════════════════════════ -->
+<section class="contact-scene" id="contact">
+  <span class="ct-label">// 005 — Contact</span>
+  <h2 class="ct-h">Let's make<br>something <em>worth watching.</em></h2>
   <div class="ct-g">
-    <div class="rv-l" data-d=".12">
+    <div>
       <p class="ct-t">Whether you have a project in mind, a script that needs work, or simply want to talk story — we're listening. The right conversation at the right time changes everything.</p>
       <div class="ct-d"><div class="ct-dl">Enquiries</div><div class="ct-dv">info@maselia.org</div></div>
       <div class="ct-d"><div class="ct-dl">Based In</div><div class="ct-dv">Available Worldwide</div></div>
-      <div class="ct-d"><div class="ct-dl">Response Time</div><div class="ct-dv">Within 48 Hours</div></div>
+      <div class="ct-d"><div class="ct-dl">Response</div><div class="ct-dv">Within 48 Hours</div></div>
     </div>
-    <form class="ct-f rv-r" data-d=".12" id="cf" action="https://formspree.io/f/xqewrrnp" method="POST">
+    <form class="ct-f" id="cf" action="https://formspree.io/f/xqewrrnp" method="POST">
       <input type="hidden" name="_subject" value="New Maselia Enquiry">
       <div class="fg"><label class="fl" for="fn">Your Name</label><input class="fi" id="fn" type="text" name="name" placeholder="Full name" required></div>
       <div class="fg"><label class="fl" for="fe">Email</label><input class="fi" id="fe" type="email" name="email" placeholder="your@email.com" required></div>
       <div class="fg">
-        <label class="fl" for="fs">Service Required</label>
+        <label class="fl" for="fs">Service</label>
         <select class="fsl" id="fs" name="service">
           <option value="">Select a service</option>
           <option>Screenwriting</option><option>Script Editing</option><option>Proofreading</option>
@@ -832,7 +546,7 @@ footer { border-top: 1px solid var(--b0); padding: 2.5rem 3rem; display: flex; j
           <option>Collaboration</option><option>General Enquiry</option>
         </select>
       </div>
-      <div class="fg"><label class="fl" for="fm">Your Message</label><textarea class="fta" id="fm" name="message" placeholder="Tell us about your project..." required></textarea></div>
+      <div class="fg"><label class="fl" for="fm">Message</label><textarea class="fta" id="fm" name="message" placeholder="Tell us about your project..." required></textarea></div>
       <button class="fsb" type="submit">Send Enquiry →</button>
       <div class="f-ok" id="fok">Thank you — your message has been sent. We'll be in touch within 48 hours.</div>
     </form>
@@ -845,249 +559,209 @@ footer { border-top: 1px solid var(--b0); padding: 2.5rem 3rem; display: flex; j
 </footer>
 
 <script>
-/* ═════════════════════════════════════════════════════════════════
-   THREE.JS — manuscript geometry
-   Ruled lines = paper. Wireframes = story structure (sparse).
-   Emil: decorative, mouse-tracking, spring-feel camera follow
-═════════════════════════════════════════════════════════════════ */
-(function () {
-  const C = document.getElementById('bg');
-  const R = new THREE.WebGLRenderer({ canvas: C, antialias: true, alpha: true });
-  R.setSize(innerWidth, innerHeight);
-  R.setPixelRatio(Math.min(devicePixelRatio, 1.5));
-  const S = new THREE.Scene();
-  const cam = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, .1, 100);
-  cam.position.z = 5;
-  const wm = op => new THREE.MeshBasicMaterial({ color: 0xb89467, wireframe: true, transparent: true, opacity: op });
+gsap.registerPlugin(ScrollTrigger);
 
-  const meshDefs = [
-    [new THREE.OctahedronGeometry(1.5, 0), wm(.075), [3.5, 1.2, -2.8]],
-    [new THREE.TetrahedronGeometry(1.0, 0), wm(.07),  [-3.8, -1.2, -2.2]],
-    [new THREE.IcosahedronGeometry(.65, 0), wm(.064), [.7, -3.0, -.7]],
-    [new THREE.OctahedronGeometry(.36, 0), wm(.046), [-1.4, 2.3, -1.4]],
-  ];
-  const meshes = meshDefs.map(([g, m, p]) => {
-    const mesh = new THREE.Mesh(g, m);
-    mesh.position.set(...p);
-    S.add(mesh);
-    return mesh;
+/* ═══ THREE.JS BG ════════════════════════════════════ */
+(function(){
+  const C=document.getElementById('bg');
+  const R=new THREE.WebGLRenderer({canvas:C,antialias:true,alpha:true});
+  R.setSize(innerWidth,innerHeight); R.setPixelRatio(Math.min(devicePixelRatio,1.5));
+  const S=new THREE.Scene(),cam=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,100);
+  cam.position.z=5;
+  const wm=op=>new THREE.MeshBasicMaterial({color:0xb89467,wireframe:true,transparent:true,opacity:op});
+  const meshes=[
+    [new THREE.OctahedronGeometry(1.5,0),wm(.07),[3.5,1.2,-2.8]],
+    [new THREE.TetrahedronGeometry(1.0,0),wm(.065),[-3.8,-1.2,-2.2]],
+    [new THREE.IcosahedronGeometry(.65,0),wm(.06),[.7,-3.0,-.7]],
+    [new THREE.OctahedronGeometry(.36,0),wm(.044),[-1.4,2.3,-1.4]],
+  ].map(([g,m,p])=>{const mesh=new THREE.Mesh(g,m);mesh.position.set(...p);S.add(mesh);return mesh;});
+  [[155,.017,.2],[52,.033,.09]].forEach(([n,sz,op])=>{
+    const pa=new Float32Array(n*3);
+    for(let i=0;i<pa.length;i++)pa[i]=(Math.random()-.5)*28;
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pa,3));
+    S.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xb89467,size:sz,transparent:true,opacity:op})));
   });
-
-  // Two-depth particles
-  [[155, .018, .22], [52, .034, .10]].forEach(([n, sz, op]) => {
-    const pa = new Float32Array(n * 3);
-    for (let i = 0; i < pa.length; i++) pa[i] = (Math.random() - .5) * 28;
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(pa, 3));
-    S.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xb89467, size: sz, transparent: true, opacity: op })));
-  });
-
-  // Ruled manuscript lines
-  for (let i = 0; i < 9; i++) {
-    const y = (Math.random() - .5) * 14;
-    const pts = [new THREE.Vector3(-18, y, -5.5), new THREE.Vector3(18, y, -5.5)];
-    S.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
-      new THREE.LineBasicMaterial({ color: 0xb89467, transparent: true, opacity: .018 })));
+  for(let i=0;i<9;i++){
+    const y=(Math.random()-.5)*14;
+    const pts=[new THREE.Vector3(-18,y,-5.5),new THREE.Vector3(18,y,-5.5)];
+    S.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xb89467,transparent:true,opacity:.016})));
   }
-  // Margin lines
-  [-7.5, 7.5].forEach(x => {
-    const pts = [new THREE.Vector3(x, -10, -5), new THREE.Vector3(x, 10, -5)];
-    S.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
-      new THREE.LineBasicMaterial({ color: 0xb89467, transparent: true, opacity: .013 })));
-  });
-
-  const rots  = [[.0017,.003,0],[-.0019,0,.0017],[0,.0032,-.0019],[.0036,-.0027,0]];
-  const floats = [
-    t => 1.2 + Math.sin(t) * .46,
-    t => -1.2 + Math.cos(t * .82) * .34,
-    t => -3.0 + Math.sin(t * 1.1) * .25,
-    t => 2.3 + Math.cos(t * 1.36) * .19,
-  ];
-
-  let tx = 0, ty = 0, t = 0;
-  document.addEventListener('mousemove', e => {
-    tx = (e.clientX / innerWidth - .5) * 2;
-    ty = (e.clientY / innerHeight - .5) * 2;
-  });
-  addEventListener('resize', () => {
-    cam.aspect = innerWidth / innerHeight;
-    cam.updateProjectionMatrix();
-    R.setSize(innerWidth, innerHeight);
-  });
-
-  function tick() {
-    requestAnimationFrame(tick);
-    t += .003;
-    meshes.forEach((m, i) => {
-      m.rotation.x += rots[i][0];
-      m.rotation.y += rots[i][1];
-      m.rotation.z += rots[i][2];
-      m.position.y = floats[i](t);
-    });
-    /* Emil: .032 lerp = spring-feel camera follow, not jerky */
-    cam.position.x += (tx * .54 - cam.position.x) * .032;
-    cam.position.y += (-ty * .32 - cam.position.y) * .032;
-    /* Canvas fades as text takes over — content always wins */
-    C.style.opacity = Math.max(0, 1 - scrollY / (innerHeight * 1.8)) * .42;
-    R.render(S, cam);
+  const rots=[[.0017,.003,0],[-.0019,0,.0017],[0,.0032,-.0019],[.0036,-.0027,0]];
+  const floats=[t=>1.2+Math.sin(t)*.44,t=>-1.2+Math.cos(t*.82)*.32,t=>-3+Math.sin(t*1.1)*.24,t=>2.3+Math.cos(t*1.36)*.18];
+  let tx=0,ty=0,t=0;
+  document.addEventListener('mousemove',e=>{tx=(e.clientX/innerWidth-.5)*2;ty=(e.clientY/innerHeight-.5)*2});
+  addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();R.setSize(innerWidth,innerHeight)});
+  function tick(){
+    requestAnimationFrame(tick);t+=.003;
+    meshes.forEach((m,i)=>{m.rotation.x+=rots[i][0];m.rotation.y+=rots[i][1];m.rotation.z+=rots[i][2];m.position.y=floats[i](t);});
+    cam.position.x+=(tx*.5-cam.position.x)*.03;cam.position.y+=(-ty*.3-cam.position.y)*.03;
+    const fade=Math.max(0,1-scrollY/(innerHeight*2))*.4;
+    C.style.opacity=fade;
+    R.render(S,cam);
   }
   tick();
 })();
 
-/* ═════════════════════════════════════════════════════════════════
-   CURSOR
-   Emil: lerp .1 = natural spring lag (dot fast, ring slow = depth)
-═════════════════════════════════════════════════════════════════ */
-const cd = document.getElementById('cd'), cr = document.getElementById('cr');
-let cx = 0, cy = 0, rx = 0, ry = 0;
-document.addEventListener('mousemove', e => { cx = e.clientX; cy = e.clientY; });
-document.addEventListener('mousedown', () => document.body.classList.add('P'));
-document.addEventListener('mouseup',   () => document.body.classList.remove('P'));
-(function loop() {
-  cd.style.left = cx + 'px'; cd.style.top = cy + 'px';
-  rx += (cx - rx) * .1; ry += (cy - ry) * .1;
-  cr.style.left = rx + 'px'; cr.style.top = ry + 'px';
+/* ═══ NAV SCROLL BEHAVIOR ═════════════════════════ */
+ScrollTrigger.create({
+  start: 'top -80', end: 99999,
+  toggleClass: { targets: '#main-nav', className: 'scrolled' }
+});
+
+/* ═══ HERO ENTRANCE (GSAP timeline) ══════════════ */
+const heroTL = gsap.timeline({ delay: .3 });
+heroTL
+  .to('#hero-pre', { opacity:1, y:0, duration:.7, ease:'power3.out' }, 0)
+  .to('#tw1', { y:'0%', duration:1, ease:'power3.out' }, .15)
+  .to('#tw2', { y:'0%', duration:1, ease:'power3.out' }, .28)
+  .to('#tw3', { y:'0%', duration:1, ease:'power3.out' }, .41)
+  .to('#hero-tag', { opacity:1, y:0, duration:.7, ease:'power3.out' }, .7)
+  .to('#scroll-hint', { opacity:1, duration:.6, ease:'power2.out' }, 1.3);
+
+/* Hero title words start hidden */
+gsap.set(['#tw1','#tw2','#tw3'], { y:'105%' });
+gsap.set('#hero-pre', { opacity:0, y:12 });
+gsap.set('#hero-tag', { opacity:0, y:12 });
+gsap.set('#scroll-hint', { opacity:0 });
+
+/* ═══ HERO PARALLAX — image scales as you scroll ═ */
+gsap.to('#hero-img', {
+  scale: 1.08, ease: 'none',
+  scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.5 }
+});
+
+/* ═══ ABOUT — fade + slide in on scroll ════════════ */
+gsap.from('.about-h', {
+  opacity:0, y:40, duration:.9, ease:'power3.out',
+  scrollTrigger:{ trigger:'.about-scene', start:'top 75%' }
+});
+gsap.from('.about-p', {
+  opacity:0, y:30, stagger:.12, duration:.8, ease:'power3.out',
+  scrollTrigger:{ trigger:'.about-scene', start:'top 70%' }
+});
+gsap.from('.about-right .sbox', {
+  opacity:0, y:30, scale:.96, stagger:.1, duration:.7, ease:'power3.out',
+  scrollTrigger:{ trigger:'.about-scene', start:'top 65%' }
+});
+gsap.from('.about-left .about-label', {
+  opacity:0, x:-20, duration:.6, ease:'power3.out',
+  scrollTrigger:{ trigger:'.about-scene', start:'top 80%' }
+});
+/* Background word parallax */
+gsap.to('.bg-word', {
+  y: -80, ease:'none',
+  scrollTrigger:{ trigger:'.about-scene', start:'top bottom', end:'bottom top', scrub:2 }
+});
+
+/* ═══ WRITERS — horizontal scroll (Rockstar style) ══ */
+const track = document.getElementById('writers-track');
+const trackWidth = () => track.scrollWidth - track.parentElement.offsetWidth;
+
+ScrollTrigger.create({
+  trigger: '.writers-scene',
+  start: 'top top',
+  end: () => '+=' + (trackWidth() + innerHeight),
+  pin: true,
+  anticipatePin: 1,
+  scrub: 1.2,
+  onUpdate: self => {
+    const x = self.progress * trackWidth();
+    gsap.set(track, { x: -x });
+  }
+});
+
+gsap.from('.writers-h', {
+  opacity:0, y:30, duration:.8, ease:'power3.out',
+  scrollTrigger:{ trigger:'.writers-scene', start:'top 80%' }
+});
+gsap.from('.writers-label', {
+  opacity:0, x:-20, duration:.6, ease:'power3.out',
+  scrollTrigger:{ trigger:'.writers-scene', start:'top 85%' }
+});
+
+/* ═══ PROJECT SCENE — parallax bg image ════════════ */
+gsap.to('#proj-bg', {
+  yPercent: 20, ease:'none',
+  scrollTrigger:{ trigger:'.project-scene', start:'top bottom', end:'bottom top', scrub:1.5 }
+});
+gsap.from('.proj-inner > *', {
+  opacity:0, x:-40, stagger:.1, duration:.9, ease:'power3.out',
+  scrollTrigger:{ trigger:'.project-scene', start:'top 70%' }
+});
+
+/* ═══ SERVICES — stagger in ════════════════════════ */
+gsap.from('.svc', {
+  opacity:0, y:30, stagger:.08, duration:.7, ease:'power3.out',
+  scrollTrigger:{ trigger:'.services-scene', start:'top 70%' }
+});
+gsap.from('.svc-h', {
+  opacity:0, y:30, duration:.8, ease:'power3.out',
+  scrollTrigger:{ trigger:'.services-scene', start:'top 80%' }
+});
+
+/* ═══ CONTACT — slide in ════════════════════════════ */
+gsap.from('.ct-g > *', {
+  opacity:0, y:30, stagger:.15, duration:.8, ease:'power3.out',
+  scrollTrigger:{ trigger:'.contact-scene', start:'top 70%' }
+});
+
+/* ═══ PROJ ROWS ══════════════════════════════════════ */
+gsap.from('.proj-row', {
+  opacity:0, y:20, stagger:.1, duration:.7, ease:'power3.out',
+  scrollTrigger:{ trigger:'.proj-rows', start:'top 80%' }
+});
+
+/* ═══ CURSOR ══════════════════════════════════════════ */
+const cd=document.getElementById('cd'),cr=document.getElementById('cr');
+let cx=0,cy=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{cx=e.clientX;cy=e.clientY;});
+document.addEventListener('mousedown',()=>document.body.classList.add('P'));
+document.addEventListener('mouseup',()=>document.body.classList.remove('P'));
+(function loop(){
+  cd.style.left=cx+'px';cd.style.top=cy+'px';
+  rx+=(cx-rx)*.1;ry+=(cy-ry)*.1;
+  cr.style.left=rx+'px';cr.style.top=ry+'px';
   requestAnimationFrame(loop);
 })();
-document.querySelectorAll('a, button, [data-hover]').forEach(el => {
-  el.addEventListener('mouseenter', () => document.body.classList.add('H'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('H'));
+document.querySelectorAll('a,button,[data-hover]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('H'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('H'));
 });
 
-/* ═════════════════════════════════════════════════════════════════
-   WAAPI REVEALS
-   Emil: element.animate() = JS control + CSS thread performance
-         ease-out for all reveals (entering elements = starts fast)
-═════════════════════════════════════════════════════════════════ */
-const EO = 'cubic-bezier(0.23,1,0.32,1)';
-
-// Eyebrow: clip-path wipe via WAAPI
-const eye = document.getElementById('h-eye');
-if (eye) {
-  eye.animate(
-    [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }],
-    { duration: 900, delay: 300, fill: 'forwards', easing: 'cubic-bezier(0.77,0,0.175,1)' }
-  );
-  // Start blink after wipe settles
-  setTimeout(() => eye.style.setProperty('--show-cursor', '1'), 1300);
-}
-
-// Scroll reveals
-const revObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (!e.isIntersecting) return;
-    const el = e.target, d = parseFloat(el.dataset.d || 0) * 1000;
-    const from = el.classList.contains('rv-l') ? { opacity: 0, transform: 'translateX(-16px)' }
-               : el.classList.contains('rv-r') ? { opacity: 0, transform: 'translateX(16px)' }
-               :                                 { opacity: 0, transform: 'translateY(20px)' };
-    el.animate([from, { opacity: 1, transform: 'translate(0)' }],
-      { duration: 680, delay: d, fill: 'forwards', easing: EO });
-    revObs.unobserve(el);
+/* ═══ 3D TILT ════════════════════════════════════════ */
+document.querySelectorAll('[data-tilt]').forEach(card=>{
+  card.addEventListener('mouseenter',()=>{card.style.transition='none';});
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+    card.style.setProperty('--mx',(x+.5)*100+'%');
+    card.style.setProperty('--my',(y+.5)*100+'%');
+    card.style.transform=`perspective(960px) rotateY(${x*7}deg) rotateX(${-y*7}deg) translateZ(7px)`;
   });
-}, { threshold: .1 });
-document.querySelectorAll('.rv, .rv-l, .rv-r').forEach(el => revObs.observe(el));
-
-/* Stagger — Emil: 48ms between items (sweet spot 30-80ms, never block interaction) */
-const stgObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (!e.isIntersecting) return;
-    const base = parseFloat(e.target.dataset.d || 0) * 1000;
-    [...e.target.children].forEach((ch, i) => {
-      ch.animate(
-        [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
-        { duration: 450, delay: base + i * 48, fill: 'forwards', easing: EO }
-      );
-    });
-    stgObs.unobserve(e.target);
-  });
-}, { threshold: .08 });
-document.querySelectorAll('.stg').forEach(el => stgObs.observe(el));
-
-/* ═════════════════════════════════════════════════════════════════
-   PARALLAX — passive, transform only (GPU only)
-═════════════════════════════════════════════════════════════════ */
-const parEls = document.querySelectorAll('.par');
-addEventListener('scroll', () => {
-  const sy = scrollY;
-  parEls.forEach(el =>
-    el.style.transform = `translateY(${sy * -(parseFloat(el.dataset.s || .2))}px)`
-  );
-}, { passive: true });
-
-/* ═════════════════════════════════════════════════════════════════
-   3D CARD TILT
-   Emil: transition:none on enter (instant = feels alive)
-         400ms ease-out on exit (asymmetric = more natural)
-         Shimmer updates --mx/--my CSS vars per mousemove
-═════════════════════════════════════════════════════════════════ */
-document.querySelectorAll('[data-tilt]').forEach(card => {
-  card.addEventListener('mouseenter', () => { card.style.transition = 'none'; });
-  card.addEventListener('mousemove', e => {
-    const r = card.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width - .5;
-    const y = (e.clientY - r.top)  / r.height - .5;
-    card.style.setProperty('--mx', (x + .5) * 100 + '%');
-    card.style.setProperty('--my', (y + .5) * 100 + '%');
-    card.style.transform = `perspective(960px) rotateY(${x * 7}deg) rotateX(${-y * 7}deg) translateZ(7px)`;
-  });
-  card.addEventListener('mouseleave', () => {
-    card.style.transition = 'transform 400ms cubic-bezier(0.23,1,0.32,1)';
-    card.style.transform = 'perspective(960px) rotateY(0) rotateX(0) translateZ(0)';
+  card.addEventListener('mouseleave',()=>{
+    card.style.transition='transform 400ms cubic-bezier(0.23,1,0.32,1)';
+    card.style.transform='perspective(960px) rotateY(0) rotateX(0) translateZ(0)';
   });
 });
 
-/* ═════════════════════════════════════════════════════════════════
-   MAGNETIC STAT BOXES
-   Emil: spring via manual lerp — no library
-         Settles naturally at rest (doesn't snap back)
-         Shimmer also tracks via CSS vars
-═════════════════════════════════════════════════════════════════ */
-document.querySelectorAll('[data-mag]').forEach(box => {
-  let bx = 0, by = 0, raf;
-  box.addEventListener('mousemove', e => {
-    const r = box.getBoundingClientRect();
-    const tx = (e.clientX - r.left - r.width  * .5) * .1;
-    const ty = (e.clientY - r.top  - r.height * .5) * .1;
-    box.style.setProperty('--mx', ((e.clientX - r.left) / r.width  * 100) + '%');
-    box.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100) + '%');
-    cancelAnimationFrame(raf);
-    (function spring() {
-      bx += (tx - bx) * .18; by += (ty - by) * .18;
-      box.style.transform = `translate(${bx}px,${by}px)`;
-      if (Math.abs(tx - bx) > .05 || Math.abs(ty - by) > .05) raf = requestAnimationFrame(spring);
-    })();
-  });
-  box.addEventListener('mouseleave', () => {
-    cancelAnimationFrame(raf);
-    (function release() {
-      bx *= .85; by *= .85;
-      box.style.transform = `translate(${bx}px,${by}px)`;
-      if (Math.abs(bx) > .04 || Math.abs(by) > .04) raf = requestAnimationFrame(release);
-      else box.style.transform = '';
-    })();
-  });
-});
-
-/* ═════════════════════════════════════════════════════════════════
-   FORM
-═════════════════════════════════════════════════════════════════ */
-const form = document.getElementById('cf');
-if (form) form.addEventListener('submit', async e => {
+/* ═══ FORM ════════════════════════════════════════════ */
+const form=document.getElementById('cf');
+if(form) form.addEventListener('submit',async e=>{
   e.preventDefault();
-  const btn = form.querySelector('.fsb');
-  btn.textContent = 'Sending…'; btn.disabled = true;
-  try {
-    const res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
-    if (res.ok) { form.reset(); document.getElementById('fok').classList.add('on'); btn.style.display = 'none'; }
-    else { btn.textContent = 'Error — try again'; btn.disabled = false; }
-  } catch { btn.textContent = 'Error — try again'; btn.disabled = false; }
+  const btn=form.querySelector('.fsb');
+  btn.textContent='Sending…';btn.disabled=true;
+  try{
+    const r=await fetch(form.action,{method:'POST',body:new FormData(form),headers:{Accept:'application/json'}});
+    if(r.ok){form.reset();document.getElementById('fok').classList.add('on');btn.style.display='none';}
+    else{btn.textContent='Error — try again';btn.disabled=false;}
+  }catch{btn.textContent='Error — try again';btn.disabled=false;}
 });
 
 /* Smooth scroll */
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    const t = document.querySelector(a.getAttribute('href'));
-    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}
   });
 });
 </script>
