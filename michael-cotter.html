@@ -362,136 +362,83 @@
   }
 
   .project-row.open .project-expand {
-    max-height: 1700px;
+    max-height: 700px;
     opacity: 1;
     border-top: 1px solid var(--border);
     padding: 2rem 2rem 2.5rem;
   }
 
-  /* 2×2 EXPAND GRID */
   .project-expand-inner {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 2px;
+    grid-template-columns: 1.6fr 1fr 0.9fr 0.9fr;
+    gap: 2rem;
     align-items: start;
   }
-  .expand-cell {
-    background: var(--dark);
-    border: 1px solid var(--border);
-    padding: 1.8rem 2rem;
-  }
-  /* Row 2 cells run full width on mobile */
-  @media (max-width: 768px) {
-    .project-expand-inner { grid-template-columns: 1fr; gap: 1px; }
-  }
-
-  .script-sample-box {
-    border: 1px solid var(--border);
-    background: var(--dark);
-    overflow: hidden;
-  }
-  .script-sample-label {
+  .sample-col-label {
     font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.25em;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--gold);
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.7rem;
   }
-  .script-pdf-link:hover { color: var(--black); border-color: var(--gold); }
-  .script-pdf-link:hover::before { transform: translateX(0); }
-  .script-pdf-icon {
-    font-family: var(--mono); font-size: 0.9rem;
-    color: var(--gold); flex-shrink: 0;
-    transition: color 0.25s ease;
-  }
-  .script-pdf-link:hover .script-pdf-icon { color: var(--black); }
-
-  /* Script page image carousel — portrait (A4 ratio) */
-  .script-pages-carousel {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 3/4;
-    overflow: hidden;
-    background: #111;
-    border: 1px solid var(--border);
-  }
-  .script-pages-track {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.35s ease;
-  }
-  .script-page-slide {
-    flex: 0 0 100%;
-    height: 100%;
-    position: relative;
-    background: #f5f0e8; /* off-white page look */
+  .sample-pdf-btn {
     display: flex;
     align-items: center;
-    justify-content: center;
-  }
-  .script-page-slide img {
-    width: 100%; height: 100%;
-    object-fit: contain;
-    object-position: center;
-    display: block;
-  }
-  .script-page-placeholder {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 0.6rem; padding: 1.5rem; text-align: center;
-    width: 100%; height: 100%;
-    background: var(--dark);
-  }
-  .script-page-placeholder-icon {
-    font-family: var(--mono); font-size: 1.4rem;
-    color: var(--border-light); letter-spacing: 0.1em;
-  }
-  .script-page-placeholder-text {
-    font-family: var(--mono); font-size: 0.5rem;
-    letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--border-light); line-height: 1.6;
-  }
-  .script-carousel-btn {
-    position: absolute; bottom: 8px;
-    background: rgba(8,8,8,.85);
-    border: 1px solid var(--border);
+    gap: 0.6rem;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
     color: var(--white);
-    width: 28px; height: 28px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: .75rem; cursor: pointer; z-index: 10;
-    transition: background .18s, color .18s;
-    user-select: none;
+    text-decoration: none;
+    border: 1px solid var(--border-light);
+    padding: 0.85rem 1rem;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.25s ease, border-color 0.25s ease;
   }
-  .script-carousel-btn:hover { background: var(--gold); color: var(--black); }
-  .script-carousel-btn.prev { left: 8px; }
-  .script-carousel-btn.next { left: 44px; }
-  .script-carousel-dots {
-    position: absolute; bottom: 10px; right: 8px;
-    display: flex; gap: 4px; align-items: center;
+  .sample-pdf-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--gold);
+    transform: translateX(-102%);
+    transition: transform 0.3s cubic-bezier(0.23,1,0.32,1);
+    z-index: -1;
   }
-  .script-carousel-dot {
-    width: 4px; height: 4px; border-radius: 50%;
-    background: var(--border-light); cursor: pointer;
-    transition: background .2s;
+  .sample-pdf-btn:hover { color: var(--black); border-color: var(--gold); }
+  .sample-pdf-btn:hover::before { transform: translateX(0); }
+  .sample-pdf-btn:active { transform: scale(0.97); }
+  .sample-pdf-icon { font-size: 0.85rem; flex-shrink: 0; }
+  .sample-placeholder-box {
+    border: 1px dashed var(--border-light);
+    background: var(--dark);
+    padding: 1.4rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+    min-height: 90px;
   }
-  .script-carousel-dot.active { background: var(--gold); }
-  .script-carousel-hint {
-    font-family: var(--mono); font-size: 0.48rem;
-    letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--muted); padding: 0.45rem 0.7rem;
-    border-top: 1px solid var(--border);
-    background: var(--card);
+  .sample-placeholder-icon {
+    font-size: 1.1rem;
+    color: var(--border-light);
   }
-
-  @media (max-width: 900px) {
+  .sample-placeholder-text {
+    font-family: var(--mono);
+    font-size: 0.52rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--border-light);
+    line-height: 1.6;
+  }
+  @media (max-width: 1100px) {
     .project-expand-inner { grid-template-columns: 1fr 1fr; }
-    .script-sample-box { grid-column: 1 / -1; }
   }
   @media (max-width: 600px) {
-    .project-expand-inner { grid-template-columns: 1fr; gap: 1px; }
+    .project-expand-inner { grid-template-columns: 1fr; }
   }
 
   .project-logline-label {
@@ -769,7 +716,7 @@
     .projects { padding: 4rem 1.5rem; }
     .project-row { grid-template-columns: 40px 1fr 36px; }
     .project-genre, .project-format { display: none; }
-    .project-expand-inner { grid-template-columns: 1fr; gap: 1px; }
+    .project-expand-inner { grid-template-columns: 1fr; }
     .carousel { aspect-ratio: 16/9; }
     .contact-strip { grid-template-columns: 1fr; gap: 3rem; padding: 4rem 1.5rem; }
     footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem 1.5rem; }
@@ -778,25 +725,6 @@
     body { cursor: auto; }
     .cursor, .cursor-ring { display: none; }
   }
-
-  .script-pdf-btn {
-    display: inline-flex; align-items: center; gap: .6rem;
-    font-family: var(--mono); font-size: .58rem; letter-spacing: .18em; text-transform: uppercase;
-    color: var(--white); text-decoration: none;
-    border: 1px solid var(--border-light); padding: .65rem 1rem;
-    position: relative; overflow: hidden;
-    transition: color 250ms ease, border-color 250ms ease;
-    width: 100%;
-  }
-  .script-pdf-btn::before {
-    content: ''; position: absolute; inset: 0;
-    background: var(--gold); transform: translateX(-102%);
-    transition: transform 300ms cubic-bezier(0.23,1,0.32,1); z-index: -1;
-  }
-  .script-pdf-btn:hover { color: var(--black); border-color: var(--gold); }
-  .script-pdf-btn:hover::before { transform: translateX(0); }
-  .script-pdf-btn:active { transform: scale(.97); }
-
 </style>
 </head>
 <body>
@@ -907,90 +835,48 @@
       <div class="project-toggle">+</div>
       <div class="project-expand">
         <div class="project-expand-inner">
-        <div class="expand-cell">
+          <div>
             <div class="project-logline-label">Logline</div>
             <p class="project-logline">When a polar bear cub is separated from his mother, he embarks on a dangerous journey south with a grumpy loner bear and a self-conscious tern, discovering that home isn't a place, but who you choose.</p>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Images &amp; Awards</div>
+          <div>
+            <div class="project-logline-label" style="margin-bottom:0.7rem;">Images &amp; Awards</div>
             <div class="carousel" data-index="0">
               <div class="carousel-track">
-                <div class="carousel-slide"><img src="images/lws-cover.jpg" alt="lws cover"></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>images/lws-award1.jpg</div></div></div>
+                <div class="carousel-slide">
+                  <img src="images/lws-cover.jpg" alt="lws cover">
+                </div>
+                <div class="carousel-slide">
+                  <div class="carousel-placeholder">
+                    <div class="carousel-placeholder-icon">&#9654;</div>
+                    <div class="carousel-placeholder-text">Add award image →<br>images/lws-award1.jpg</div>
+                  </div>
+                </div>
               </div>
               <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
               <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Browse images</div>
-              </div>
+              <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span></div>
+              <div class="carousel-label">Click arrows to browse · Add images via GitHub</div>
             </div>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Script Sample — Page 1</div>
-            <a href="scripts/lws-sample.pdf" target="_blank" class="script-pdf-btn">
-              <span>&#x1F4C4;</span> Download PDF Sample
+          <div>
+            <div class="sample-col-label">Sample 1</div>
+            <a href="scripts/lws-sample-1.pdf" target="_blank" class="sample-pdf-btn">
+              <span class="sample-pdf-icon">&#x1F4C4;</span> Download PDF
             </a>
-            <div class="carousel" data-index="0" style="aspect-ratio:3/4;margin-top:1rem">
-              <div class="carousel-track">
-                <div class="carousel-slide">
-			<div class="carousel-placeholder">
-				<div class="carousel-placeholder-icon">&#9654;</div>
-				<div class="carousel-placeholder-text">Add image →<br>scripts/lws-page1.jpg</div>
-			</div>
-		</div>
-                <div class="carousel-slide">
-			<div class="carousel-placeholder">
-				<div class="carousel-placeholder-icon">&#9654;</div>
-				<div class="carousel-placeholder-text">Add image →<br>scripts/lws-page2.jpg</div>
-			</div>
-		</div>
-                <div class="carousel-slide">
-			<div class="carousel-placeholder">
-				<div class="carousel-placeholder-icon">&#9654;</div>
-				<div class="carousel-placeholder-text">Add image →<br>scripts/lws-page3.jpg</div>
-			</div>
-		</div>
-              </div>
-              <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
-              <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Sample pages</div>
-              </div>
+            <div class="sample-placeholder-box" style="margin-top:0.6rem;">
+              <span class="sample-placeholder-icon">&#9654;</span>
+              <span class="sample-placeholder-text">Or add image →<br>scripts/lws-sample-1.jpg</span>
             </div>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Script Sample — Page 2</div>
-            <a href="scripts/lws-sample.pdf" target="_blank" class="script-pdf-btn">
-              <span>&#x1F4C4;</span> Download PDF Sample
+          <div>
+            <div class="sample-col-label">Sample 2</div>
+            <a href="scripts/lws-sample-2.pdf" target="_blank" class="sample-pdf-btn">
+              <span class="sample-pdf-icon">&#x1F4C4;</span> Download PDF
             </a>
-            <div class="carousel" data-index="0" style="aspect-ratio:3/4;margin-top:1rem">
-              <div class="carousel-track">
-                <div class="carousel-slide">
-			<div class="carousel-placeholder">
-				<div class="carousel-placeholder-icon">&#9654;</div>
-				<div class="carousel-placeholder-text">Add image →<br>scripts/lws-page1.jpg</div>
-			</div>
-		</div>
-                <div class="carousel-slide">
-			<div class="carousel-placeholder">
-				<div class="carousel-placeholder-icon">&#9654;</div>
-				<div class="carousel-placeholder-text">Add image →<br>scripts/lws-page2.jpg</div>
-			</div>
-		</div>
-                <div class="carousel-slide">
-			<div class="carousel-placeholder">
-				<div class="carousel-placeholder-icon">&#9654;</div>
-				<div class="carousel-placeholder-text">Add image →<br>scripts/lws-page3.jpg</div>
-			</div>
-		</div>
-              <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
-              <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Sample pages</div>
-              </div>
+            <div class="sample-placeholder-box" style="margin-top:0.6rem;">
+              <span class="sample-placeholder-icon">&#9654;</span>
+              <span class="sample-placeholder-text">Or add image →<br>scripts/lws-sample-2.jpg</span>
             </div>
           </div>
         </div>
@@ -1012,61 +898,41 @@
       <div class="project-toggle">+</div>
       <div class="project-expand">
         <div class="project-expand-inner">
-        <div class="expand-cell">
+          <div>
             <div class="project-logline-label">Logline</div>
             <p class="project-logline">Al Everly, a struggling alpaca farmer, tries to keep his family farm afloat through illegal means. When his past, present, and secrets begin to collide, Al faces a choice between survival and salvation.</p>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Images &amp; Awards</div>
+          <div>
+            <div class="project-logline-label" style="margin-bottom:0.7rem;">Images &amp; Awards</div>
             <div class="carousel" data-index="0">
               <div class="carousel-track">
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>images/sh-cover.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>images/sh-award1.jpg</div></div></div>
+                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add cover image →<br>images/sh-cover.jpg</div></div></div>
+                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add award image →<br>images/sh-award1.jpg</div></div></div>
               </div>
               <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
               <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Browse images</div>
-              </div>
+              <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span></div>
+              <div class="carousel-label">Click arrows to browse · Add images via GitHub</div>
             </div>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Script Sample — Page 1</div>
-            <a href="scripts/sh-sample.pdf" target="_blank" class="script-pdf-btn">
-              <span>&#x1F4C4;</span> Download PDF Sample
+          <div>
+            <div class="sample-col-label">Sample 1</div>
+            <a href="scripts/sh-sample-1.pdf" target="_blank" class="sample-pdf-btn">
+              <span class="sample-pdf-icon">&#x1F4C4;</span> Download PDF
             </a>
-            <div class="carousel" data-index="0" style="aspect-ratio:3/4;margin-top:1rem">
-              <div class="carousel-track">
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/sh-page1.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/sh-page2.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/sh-page3.jpg</div></div></div>
-              </div>
-              <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
-              <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Sample pages</div>
-              </div>
+            <div class="sample-placeholder-box" style="margin-top:0.6rem;">
+              <span class="sample-placeholder-icon">&#9654;</span>
+              <span class="sample-placeholder-text">Or add image →<br>scripts/sh-sample-1.jpg</span>
             </div>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Script Sample — Page 2</div>
-            <a href="scripts/sh-sample.pdf" target="_blank" class="script-pdf-btn">
-              <span>&#x1F4C4;</span> Download PDF Sample
+          <div>
+            <div class="sample-col-label">Sample 2</div>
+            <a href="scripts/sh-sample-2.pdf" target="_blank" class="sample-pdf-btn">
+              <span class="sample-pdf-icon">&#x1F4C4;</span> Download PDF
             </a>
-            <div class="carousel" data-index="0" style="aspect-ratio:3/4;margin-top:1rem">
-              <div class="carousel-track">
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/sh-page1.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/sh-page2.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/sh-page3.jpg</div></div></div>
-              </div>
-              <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
-              <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Sample pages</div>
-              </div>
+            <div class="sample-placeholder-box" style="margin-top:0.6rem;">
+              <span class="sample-placeholder-icon">&#9654;</span>
+              <span class="sample-placeholder-text">Or add image →<br>scripts/sh-sample-2.jpg</span>
             </div>
           </div>
         </div>
@@ -1089,62 +955,45 @@
       <div class="project-toggle">+</div>
       <div class="project-expand">
         <div class="project-expand-inner">
-        <div class="expand-cell">
+          <div>
             <div class="project-logline-label">Logline</div>
             <p class="project-logline">In a world ruled by machines, a curious robot haunted by human memories escapes into the wild, where he discovers a hidden tribe of free humans — there he must confront the truth of who he was and choose who he wants to become, in order to shape the future of both factions.</p>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Images &amp; Awards</div>
+          <div>
+            <div class="project-logline-label" style="margin-bottom:0.7rem;">Images &amp; Awards</div>
             <div class="carousel" data-index="0">
               <div class="carousel-track">
-                <div class="carousel-slide"><img src="images/stny-cover.jpg" alt="stny cover"></div>
-                <div class="carousel-slide"><img src="images/stny-award.jpg" alt="stny award"></div>
-                <div class="carousel-slide"><img src="images/stny-award2.jpg" alt="stny award2"></div>
+                <div class="carousel-slide">
+			<img src="images/stny-cover.jpg" alt="stny cover"></div>
+                <div class="carousel-slide">
+			<img src="images/stny-award.jpg" alt="stny award"></div>
+                <div class="carousel-slide">
+			<img src="images/stny-award2.jpg" alt="stny award2"></div>
               </div>
               <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
               <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Browse images</div>
-              </div>
+              <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span></div>
+              <div class="carousel-label">Click arrows to browse · Add images via GitHub</div>
             </div>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Script Sample — Page 1</div>
-            <a href="scripts/stny-sample.pdf" target="_blank" class="script-pdf-btn">
-              <span>&#x1F4C4;</span> Download PDF Sample
+          <div>
+            <div class="sample-col-label">Sample 1</div>
+            <a href="scripts/stny-sample-1.pdf" target="_blank" class="sample-pdf-btn">
+              <span class="sample-pdf-icon">&#x1F4C4;</span> Download PDF
             </a>
-            <div class="carousel" data-index="0" style="aspect-ratio:3/4;margin-top:1rem">
-              <div class="carousel-track">
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/stny-page1.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/stny-page2.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/stny-page3.jpg</div></div></div>
-              </div>
-              <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
-              <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Sample pages</div>
-              </div>
+            <div class="sample-placeholder-box" style="margin-top:0.6rem;">
+              <span class="sample-placeholder-icon">&#9654;</span>
+              <span class="sample-placeholder-text">Or add image →<br>scripts/stny-sample-1.jpg</span>
             </div>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Script Sample — Page 2</div>
-            <a href="scripts/stny-sample.pdf" target="_blank" class="script-pdf-btn">
-              <span>&#x1F4C4;</span> Download PDF Sample
+          <div>
+            <div class="sample-col-label">Sample 2</div>
+            <a href="scripts/stny-sample-2.pdf" target="_blank" class="sample-pdf-btn">
+              <span class="sample-pdf-icon">&#x1F4C4;</span> Download PDF
             </a>
-            <div class="carousel" data-index="0" style="aspect-ratio:3/4;margin-top:1rem">
-              <div class="carousel-track">
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/stny-page1.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/stny-page2.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/stny-page3.jpg</div></div></div>
-              </div>
-              <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
-              <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Sample pages</div>
-              </div>
+            <div class="sample-placeholder-box" style="margin-top:0.6rem;">
+              <span class="sample-placeholder-icon">&#9654;</span>
+              <span class="sample-placeholder-text">Or add image →<br>scripts/stny-sample-2.jpg</span>
             </div>
           </div>
         </div>
@@ -1163,63 +1012,47 @@
       <div class="project-toggle">+</div>
       <div class="project-expand">
         <div class="project-expand-inner">
-        <div class="expand-cell">
+          <div>
             <div class="project-logline-label">Logline</div>
             <p class="project-logline">A single mother, who has lost her son almost 20 years ago, has been stuck in the motions of reliving and suffering the loss every day.</p>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Images &amp; Awards</div>
+          <div>
+            <div class="project-logline-label" style="margin-bottom:0.7rem;">Images &amp; Awards</div>
             <div class="carousel" data-index="0">
               <div class="carousel-track">
-                <div class="carousel-slide"><img src="images/motions-cover.jpg" alt="motions cover"></div>
-                <div class="carousel-slide"><img src="images/motions-award-1.jpg" alt="motions award1"></div>
-                <div class="carousel-slide"><img src="images/motions-award-2.jpg" alt="motions award2"></div>
-                <div class="carousel-slide"><img src="images/motions-award-3.jpg" alt="motions award3"></div>
+		<div class="carousel-slide">
+			<img src="images/motions-cover.jpg" alt="motions cover"></div>
+                <div class="carousel-slide">
+			<img src="images/motions-award-1.jpg" alt="motions award1"></div>
+                <div class="carousel-slide">
+			<img src="images/motions-award-2.jpg" alt="motions award2"></div>
+                <div class="carousel-slide">
+			<img src="images/motions-award-3.jpg" alt="motions award3"></div>
               </div>
               <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
               <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Browse images</div>
-              </div>
+              <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span></div>
+              <div class="carousel-label">Click arrows to browse · Add images via GitHub</div>
             </div>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Script Sample — Page 1</div>
-            <a href="scripts/motions-sample.pdf" target="_blank" class="script-pdf-btn">
-              <span>&#x1F4C4;</span> Download PDF Sample
+          <div>
+            <div class="sample-col-label">Sample 1</div>
+            <a href="scripts/motions-sample-1.pdf" target="_blank" class="sample-pdf-btn">
+              <span class="sample-pdf-icon">&#x1F4C4;</span> Download PDF
             </a>
-            <div class="carousel" data-index="0" style="aspect-ratio:3/4;margin-top:1rem">
-              <div class="carousel-track">
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/motions-page1.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/motions-page2.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/motions-page3.jpg</div></div></div>
-              </div>
-              <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
-              <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Sample pages</div>
-              </div>
+            <div class="sample-placeholder-box" style="margin-top:0.6rem;">
+              <span class="sample-placeholder-icon">&#9654;</span>
+              <span class="sample-placeholder-text">Or add image →<br>scripts/motions-sample-1.jpg</span>
             </div>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Script Sample — Page 2</div>
-            <a href="scripts/motions-sample.pdf" target="_blank" class="script-pdf-btn">
-              <span>&#x1F4C4;</span> Download PDF Sample
+          <div>
+            <div class="sample-col-label">Sample 2</div>
+            <a href="scripts/motions-sample-2.pdf" target="_blank" class="sample-pdf-btn">
+              <span class="sample-pdf-icon">&#x1F4C4;</span> Download PDF
             </a>
-            <div class="carousel" data-index="0" style="aspect-ratio:3/4;margin-top:1rem">
-              <div class="carousel-track">
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/motions-page1.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/motions-page2.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/motions-page3.jpg</div></div></div>
-              </div>
-              <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
-              <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Sample pages</div>
-              </div>
+            <div class="sample-placeholder-box" style="margin-top:0.6rem;">
+              <span class="sample-placeholder-icon">&#9654;</span>
+              <span class="sample-placeholder-text">Or add image →<br>scripts/motions-sample-2.jpg</span>
             </div>
           </div>
         </div>
@@ -1238,62 +1071,44 @@
       <div class="project-toggle">+</div>
       <div class="project-expand">
         <div class="project-expand-inner">
-        <div class="expand-cell">
+          <div>
             <div class="project-logline-label">Logline</div>
             <p class="project-logline">Details to follow.</p>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Images &amp; Awards</div>
+          <div>
+            <div class="project-logline-label" style="margin-bottom:0.7rem;">Images &amp; Awards</div>
             <div class="carousel" data-index="0">
               <div class="carousel-track">
-                <div class="carousel-slide"><img src="images/tfsb-cover.jpg" alt="tfsb cover"></div>
-                <div class="carousel-slide"><img src="images/tfsb-award-1.jpg" alt="tfsb award1"></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>images/tfsb-award2.jpg</div></div></div>
+ 		<div class="carousel-slide">
+			<img src="images/tfsb-cover.jpg" alt="tfsb cover"></div>
+                <div class="carousel-slide">
+			<img src="images/tfsb-award-1.jpg" alt="tfsb award1"></div>
+                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add award image →<br>images/tfsb-award1.jpg</div></div></div>
               </div>
               <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
               <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Browse images</div>
-              </div>
+              <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span></div>
+              <div class="carousel-label">Click arrows to browse · Add images via GitHub</div>
             </div>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Script Sample — Page 1</div>
-            <a href="scripts/tfsb-sample.pdf" target="_blank" class="script-pdf-btn">
-              <span>&#x1F4C4;</span> Download PDF Sample
+          <div>
+            <div class="sample-col-label">Sample 1</div>
+            <a href="scripts/tfsb-sample-1.pdf" target="_blank" class="sample-pdf-btn">
+              <span class="sample-pdf-icon">&#x1F4C4;</span> Download PDF
             </a>
-            <div class="carousel" data-index="0" style="aspect-ratio:3/4;margin-top:1rem">
-              <div class="carousel-track">
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/tfsb-page1.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/tfsb-page2.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/tfsb-page3.jpg</div></div></div>
-              </div>
-              <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
-              <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Sample pages</div>
-              </div>
+            <div class="sample-placeholder-box" style="margin-top:0.6rem;">
+              <span class="sample-placeholder-icon">&#9654;</span>
+              <span class="sample-placeholder-text">Or add image →<br>scripts/tfsb-sample-1.jpg</span>
             </div>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Script Sample — Page 2</div>
-            <a href="scripts/tfsb-sample.pdf" target="_blank" class="script-pdf-btn">
-              <span>&#x1F4C4;</span> Download PDF Sample
+          <div>
+            <div class="sample-col-label">Sample 2</div>
+            <a href="scripts/tfsb-sample-2.pdf" target="_blank" class="sample-pdf-btn">
+              <span class="sample-pdf-icon">&#x1F4C4;</span> Download PDF
             </a>
-            <div class="carousel" data-index="0" style="aspect-ratio:3/4;margin-top:1rem">
-              <div class="carousel-track">
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/tfsb-page1.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/tfsb-page2.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/tfsb-page3.jpg</div></div></div>
-              </div>
-              <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
-              <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Sample pages</div>
-              </div>
+            <div class="sample-placeholder-box" style="margin-top:0.6rem;">
+              <span class="sample-placeholder-icon">&#9654;</span>
+              <span class="sample-placeholder-text">Or add image →<br>scripts/tfsb-sample-2.jpg</span>
             </div>
           </div>
         </div>
@@ -1312,61 +1127,42 @@
       <div class="project-toggle">+</div>
       <div class="project-expand">
         <div class="project-expand-inner">
-        <div class="expand-cell">
+          <div>
             <div class="project-logline-label">Logline</div>
             <p class="project-logline">Details to follow.</p>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Images &amp; Awards</div>
+          <div>
+            <div class="project-logline-label" style="margin-bottom:0.7rem;">Images &amp; Awards</div>
             <div class="carousel" data-index="0">
               <div class="carousel-track">
-                <div class="carousel-slide"><img src="images/aniwr-cover.jpg" alt="aniwr cover"></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>images/anwr-award1.jpg</div></div></div>
+                 <div class="carousel-slide">
+			<img src="images/aniwr-cover.jpg" alt="aniwr cover"></div>
+		<div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add award image →<br>images/anwr-award1.jpg</div></div></div>
               </div>
               <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
               <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Browse images</div>
-              </div>
+              <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span></div>
+              <div class="carousel-label">Click arrows to browse · Add images via GitHub</div>
             </div>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Script Sample — Page 1</div>
-            <a href="scripts/aniwr-sample.pdf" target="_blank" class="script-pdf-btn">
-              <span>&#x1F4C4;</span> Download PDF Sample
+          <div>
+            <div class="sample-col-label">Sample 1</div>
+            <a href="scripts/aniwr-sample-1.pdf" target="_blank" class="sample-pdf-btn">
+              <span class="sample-pdf-icon">&#x1F4C4;</span> Download PDF
             </a>
-            <div class="carousel" data-index="0" style="aspect-ratio:3/4;margin-top:1rem">
-              <div class="carousel-track">
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/aniwr-page1.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/aniwr-page2.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/aniwr-page3.jpg</div></div></div>
-              </div>
-              <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
-              <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Sample pages</div>
-              </div>
+            <div class="sample-placeholder-box" style="margin-top:0.6rem;">
+              <span class="sample-placeholder-icon">&#9654;</span>
+              <span class="sample-placeholder-text">Or add image →<br>scripts/aniwr-sample-1.jpg</span>
             </div>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Script Sample — Page 2</div>
-            <a href="scripts/aniwr-sample.pdf" target="_blank" class="script-pdf-btn">
-              <span>&#x1F4C4;</span> Download PDF Sample
+          <div>
+            <div class="sample-col-label">Sample 2</div>
+            <a href="scripts/aniwr-sample-2.pdf" target="_blank" class="sample-pdf-btn">
+              <span class="sample-pdf-icon">&#x1F4C4;</span> Download PDF
             </a>
-            <div class="carousel" data-index="0" style="aspect-ratio:3/4;margin-top:1rem">
-              <div class="carousel-track">
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/aniwr-page1.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/aniwr-page2.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/aniwr-page3.jpg</div></div></div>
-              </div>
-              <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
-              <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Sample pages</div>
-              </div>
+            <div class="sample-placeholder-box" style="margin-top:0.6rem;">
+              <span class="sample-placeholder-icon">&#9654;</span>
+              <span class="sample-placeholder-text">Or add image →<br>scripts/aniwr-sample-2.jpg</span>
             </div>
           </div>
         </div>
@@ -1385,61 +1181,42 @@
       <div class="project-toggle">+</div>
       <div class="project-expand">
         <div class="project-expand-inner">
-        <div class="expand-cell">
+          <div>
             <div class="project-logline-label">Logline</div>
             <p class="project-logline">Details to follow.</p>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Images &amp; Awards</div>
+          <div>
+            <div class="project-logline-label" style="margin-bottom:0.7rem;">Images &amp; Awards</div>
             <div class="carousel" data-index="0">
               <div class="carousel-track">
-                <div class="carousel-slide"><img src="images/tdoats-cover.jpg" alt="tdoats cover"></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>images/adts-award1.jpg</div></div></div>
+                 <div class="carousel-slide">
+			<img src="images/tdoats-cover.jpg" alt="tdoats cover"></div>
+                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add award image →<br>images/adts-award1.jpg</div></div></div>
               </div>
               <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
               <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Browse images</div>
-              </div>
+              <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span></div>
+              <div class="carousel-label">Click arrows to browse · Add images via GitHub</div>
             </div>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Script Sample — Page 1</div>
-            <a href="scripts/adoats-sample.pdf" target="_blank" class="script-pdf-btn">
-              <span>&#x1F4C4;</span> Download PDF Sample
+          <div>
+            <div class="sample-col-label">Sample 1</div>
+            <a href="scripts/tdoats-sample-1.pdf" target="_blank" class="sample-pdf-btn">
+              <span class="sample-pdf-icon">&#x1F4C4;</span> Download PDF
             </a>
-            <div class="carousel" data-index="0" style="aspect-ratio:3/4;margin-top:1rem">
-              <div class="carousel-track">
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/adoats-page1.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/adoats-page2.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/adoats-page3.jpg</div></div></div>
-              </div>
-              <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
-              <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Sample pages</div>
-              </div>
+            <div class="sample-placeholder-box" style="margin-top:0.6rem;">
+              <span class="sample-placeholder-icon">&#9654;</span>
+              <span class="sample-placeholder-text">Or add image →<br>scripts/tdoats-sample-1.jpg</span>
             </div>
           </div>
-        <div class="expand-cell">
-            <div class="project-logline-label">Script Sample — Page 2</div>
-            <a href="scripts/adoats-sample.pdf" target="_blank" class="script-pdf-btn">
-              <span>&#x1F4C4;</span> Download PDF Sample
+          <div>
+            <div class="sample-col-label">Sample 2</div>
+            <a href="scripts/tdoats-sample-2.pdf" target="_blank" class="sample-pdf-btn">
+              <span class="sample-pdf-icon">&#x1F4C4;</span> Download PDF
             </a>
-            <div class="carousel" data-index="0" style="aspect-ratio:3/4;margin-top:1rem">
-              <div class="carousel-track">
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/adoats-page1.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/adoats-page2.jpg</div></div></div>
-                <div class="carousel-slide"><div class="carousel-placeholder"><div class="carousel-placeholder-icon">&#9654;</div><div class="carousel-placeholder-text">Add image →<br>scripts/adoats-page3.jpg</div></div></div>
-              </div>
-              <button class="carousel-btn prev" onclick="carouselMove(event,this,-1)">&#8592;</button>
-              <button class="carousel-btn next" onclick="carouselMove(event,this,1)">&#8594;</button>
-              <div class="carousel-footer">
-                <div class="carousel-dots"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>
-                <div class="carousel-hint">Sample pages</div>
-              </div>
+            <div class="sample-placeholder-box" style="margin-top:0.6rem;">
+              <span class="sample-placeholder-icon">&#9654;</span>
+              <span class="sample-placeholder-text">Or add image →<br>scripts/tdoats-sample-2.jpg</span>
             </div>
           </div>
         </div>
@@ -1537,19 +1314,6 @@
       row.classList.add('open');
       row.querySelector('.project-toggle').textContent = '−';
     }
-  }
-
-  function scriptCarouselMove(e, btn, dir) {
-    e.stopPropagation();
-    const c = btn.closest('.script-pages-carousel');
-    const track = c.querySelector('.script-pages-track');
-    const slides = c.querySelectorAll('.script-page-slide');
-    const dots = c.querySelectorAll('.script-carousel-dot');
-    let idx = (parseInt(c.dataset.index) || 0) + dir;
-    idx = (idx + slides.length) % slides.length;
-    c.dataset.index = idx;
-    track.style.transform = `translateX(-${idx * 100}%)`;
-    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
   }
 
   function carouselMove(e, btn, dir) {
