@@ -362,7 +362,7 @@
   }
 
   .project-row.open .project-expand {
-    max-height: 700px;
+    max-height: 1300px;
     opacity: 1;
     border-top: 1px solid var(--border);
     padding: 2rem 2rem 2.5rem;
@@ -370,7 +370,7 @@
 
   .project-expand-inner {
     display: grid;
-    grid-template-columns: 1.6fr 1fr 0.9fr 0.9fr;
+    grid-template-columns: 1fr 1fr;
     gap: 2rem;
     align-items: start;
   }
@@ -433,9 +433,6 @@
     text-transform: uppercase;
     color: var(--border-light);
     line-height: 1.6;
-  }
-  @media (max-width: 1100px) {
-    .project-expand-inner { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 600px) {
     .project-expand-inner { grid-template-columns: 1fr; }
